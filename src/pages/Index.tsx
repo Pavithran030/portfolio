@@ -218,7 +218,7 @@ const EDUCATION = [
 ];
 
 const ACHIEVEMENTS_STATS = [
-  { value: 80, suffix: "+", label: "LeetCode Problems" },
+  { value: 120, suffix: "+", label: "LeetCode Problems" },
   { value: 2, suffix: "", label: "Internships" },
   { value: 3, suffix: "+", label: "Certifications" },
   { value: 3, suffix: "", label: "Projects Built" },
