@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="100%" height="100%" fill="#f7f1e9"/>
+  <g transform="translate(80,80)">
+    <rect width="1040" height="560" rx="12" fill="#fff" stroke="#e6d8c8"/>
+    <text x="520" y="120" font-family="Lora, serif" font-size="48" text-anchor="middle" fill="#3b2b1f">Syncwork</text>
+    <text x="520" y="180" font-family="Inter, sans-serif" font-size="20" text-anchor="middle" fill="#7a6350">Real-time collaborative Kanban</text>
+    <g transform="translate(60,220)">
+      <rect width="240" height="260" rx="8" fill="#fff5e9" stroke="#f0e1d3"/>
+      <rect x="260" width="240" height="260" rx="8" fill="#fff5e9" stroke="#f0e1d3"/>
+      <rect x="520" width="240" height="260" rx="8" fill="#fff5e9" stroke="#f0e1d3"/>
+      <text x="120" y="30" font-family="Inter, sans-serif" font-size="14" text-anchor="middle" fill="#6d5646">To Do</text>
+      <text x="380" y="30" font-family="Inter, sans-serif" font-size="14" text-anchor="middle" fill="#6d5646">In Progress</text>
+      <text x="640" y="30" font-family="Inter, sans-serif" font-size="14" text-anchor="middle" fill="#6d5646">Done</text>
+    </g>
+  </g>
+</svg>

@@ -2278,6 +2278,39 @@ html.lenis body {
   background: hsl(var(--accent-ice) / 0.1);
 }
 
+.project-links-placeholder {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--muted) / 0.9);
+  border: 1px solid hsl(var(--accent-ice) / 0.12);
+  border-radius: 6px;
+  padding: 8px 18px;
+  opacity: 0.5;
+  display: inline-block;
+}
+
+.project-links.center {
+  justify-content: center;
+}
+
+.project-source-disabled {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--muted) / 0.7);
+  border: 1px solid hsl(var(--accent-ice) / 0.08);
+  border-radius: 6px;
+  padding: 8px 18px;
+  opacity: 0.6;
+  pointer-events: none;
+  display: inline-block;
+}
+
 @media (max-width: 768px) {
   .projects-section {
     padding: 80px var(--section-inline) 60px !important;

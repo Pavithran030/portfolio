@@ -24,6 +24,7 @@ import project001 from "@/assets/project-001.jpg";
 import project002 from "@/assets/project-002.jpg";
 import project003 from "@/assets/project-003.jpg";
 import project004 from "@/assets/project-004.jpg";
+import project004Sync from "@/assets/project-004-syncwork.svg";
 import project005 from "@/assets/project-005.jpg";
 import project006 from "@/assets/project-006.jpg";
 import profilePhoto from "@/assets/pavithran.jpeg";
@@ -131,6 +132,7 @@ const PROJECTS = [
     longDesc:
       "Developed a bilingual (Tamil/English) AI-powered chatbot using React.js and n8n. Integrated APIs and webhook-based workflows for real-time farmer assistance. Improved accessibility and user engagement through conversational AI, helping farmers get instant answers about crop management, weather, and market prices.",
     tech: ["React.js", "n8n", "APIs", "AI"],
+    source: "https://github.com/Pavithran030/n8n_Workflows/tree/main/Farm_Assistant",
     image: project002,
   },
   {
@@ -140,16 +142,30 @@ const PROJECTS = [
     longDesc:
       "Built a real-time human motion recognition system using OpenCV and MediaPipe. Integrated Python-based pose detection with Unity for 3D visualization. Enabled real-time movement tracking and interaction, creating an immersive experience for motion analysis and gaming applications.",
     tech: ["Python", "MediaPipe", "OpenCV", "Unity"],
+    source: "https://github.com/Pavithran030/Motion_Recognition.git",
     image: project003,
   },
   {
     id: "004",
-    title: "Smart Resume Screener",
-    desc: "Placeholder: upcoming NLP-assisted resume filtering workflow for recruiter pipelines.",
-    longDesc:
-      "Placeholder project. Planned feature set includes resume parsing, scoring, and shortlist recommendations with explainable ranking insights.",
-    tech: ["Python", "NLP", "FastAPI"],
-    image: project004,
+    title: "Syncwork",
+    desc: "Syncwork is a real-time collaborative Kanban board where teams organize tasks, assign work, and see every update instantly — built with React and Supabase, no backend required.",
+    longDesc: `Syncwork is a real-time collaborative task management application designed for small teams who need to stay in sync without the overhead of complex project management tools.
+
+  The application follows a Kanban-style workflow where tasks move through three stages — To Do, In Progress, and Done. Teams create a shared board, distribute a unique join code to teammates, and from that point everyone works on the same board simultaneously. When one person creates a card, moves it to a different column, or updates its details, every other connected user sees the change instantly without refreshing the page.
+
+  Built entirely on the frontend using React 18, TypeScript, and Vite, Syncwork uses Supabase as its complete backend — handling authentication, database storage, real-time event broadcasting, and row-level security all in one platform. There is no custom server to maintain or deploy. The entire application is hosted on Vercel as a static site, making it fast, free to run, and easy to deploy.
+
+  The real-time layer is powered by Supabase Realtime, which listens to database changes and pushes them to all connected clients through WebSocket channels. User presence — showing who is currently viewing the board — is handled through Supabase's Presence feature, displaying live avatars at the top of the board. A live activity feed on the sidebar records every action taken by the team, updating in real time as work happens.
+
+  Cards support titles, descriptions, assignees, and deadlines. Cards approaching their deadline are visually highlighted to draw attention. Drag and drop is supported on both desktop and mobile, allowing cards to be moved between columns with a natural gesture.
+
+  The interface uses a distinctive Handwritten Notebook theme — warm cream and parchment backgrounds, Lora serif typography, ruled-line card borders, and ink-colored column headers — giving the application a focused, paper-like feel that stands apart from generic SaaS tools.
+
+  Authentication is handled entirely by Supabase Auth, including registration, login, forgot password, and reset password flows. All data is protected by PostgreSQL Row Level Security policies, ensuring users can only access boards they belong to.`,
+    tech: ["React", "TypeScript", "PostgreSQL"],
+    demo: "https://syncwork-mu.vercel.app",
+    source: "https://github.com/Pavithran030/AIDLC-Project",
+    image: project004Sync,
   },
   {
     id: "005",
@@ -405,9 +421,23 @@ function ProjectsHorizontalScroll({
                     <span key={t}>{t}</span>
                   ))}
                 </div>
-                <div className="project-links">
-                  <a href="#">↗ LIVE DEMO</a>
-                  <a href="#">{"</>"} SOURCE CODE</a>
+                <div className={`project-links ${!p.demo ? "center" : ""}`}>
+                  {p.demo ? (
+                    <a href={p.demo} target="_blank" rel="noopener noreferrer">
+                      ↗ LIVE DEMO
+                    </a>
+                  ) : null}
+
+                  {/* Always show source button. If `p.source` is missing render a disabled placeholder centered when no demo */}
+                  {p.source ? (
+                    <a href={p.source} target="_blank" rel="noopener noreferrer">
+                      {"</>"} SOURCE CODE
+                    </a>
+                  ) : (
+                    <a className="project-source-disabled" href="#" onClick={(e) => e.preventDefault()}>
+                      {"</>"} SOURCE CODE
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -1097,19 +1127,33 @@ export default function Index() {
             <img src={popupProject.image} alt={popupProject.title} className="popup-image" />
             <div className="popup-body">
               <h3 className="popup-title">{popupProject.title}</h3>
-              <p className="popup-desc">{popupProject.longDesc}</p>
+              <div
+                className="popup-desc"
+                style={{ maxHeight: 220, overflowY: "auto", whiteSpace: "pre-wrap" }}
+              >
+                {popupProject.longDesc}
+              </div>
               <div className="popup-tech">
                 {popupProject.tech.map((t) => (
                   <span key={t}>{t}</span>
                 ))}
               </div>
               <div className="popup-links">
-                <a href="#" className="btn-primary">
-                  ↗ LIVE DEMO
-                </a>
-                <a href="#" className="btn-secondary">
-                  {"</>"} SOURCE CODE
-                </a>
+                {popupProject.demo ? (
+                  <a href={popupProject.demo} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                    ↗ LIVE DEMO
+                  </a>
+                ) : (
+                  <span className="btn-primary disabled">↗ LIVE DEMO</span>
+                )}
+
+                {popupProject.source ? (
+                  <a href={popupProject.source} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+                    {"</>"} SOURCE CODE
+                  </a>
+                ) : (
+                  <span className="btn-secondary disabled">{"</>"} SOURCE CODE</span>
+                )}
               </div>
             </div>
           </div>
@@ -1322,9 +1366,9 @@ export default function Index() {
               </p>
               <div className="about-stats">
                 {[
-                  { val: 2, suffix: "+", label: "Internships" },
-                  { val: 3, suffix: "+", label: "Projects" },
-                  { val: 80, suffix: "+", label: "LeetCode" },
+                  { val: 3, suffix: "+", label: "Internships" },
+                  { val: 4, suffix: "+", label: "Projects" },
+                  { val: 120, suffix: "+", label: "LeetCode" },
                   { val: 3, suffix: "+", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
