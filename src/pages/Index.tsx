@@ -218,13 +218,18 @@ const EDUCATION = [
 ];
 
 const ACHIEVEMENTS_STATS = [
-  { value: 120, suffix: "+", label: "LeetCode Problems" },
-  { value: 2, suffix: "", label: "Internships" },
-  { value: 3, suffix: "+", label: "Certifications" },
-  { value: 3, suffix: "", label: "Projects Built" },
+  { value: 140, suffix: "+", label: "LeetCode Problems" },
+  { value: 3, suffix: "", label: "Internships" },
+  { value: 5, suffix: "+", label: "Certifications" },
+  { value: 4, suffix: "", label: "Projects Built" },
 ];
 
 const ACHIEVEMENT_CARDS = [
+  {
+    icon: "fa-solid fa-certificate",
+    title: "Oracle Agentic AI Foundation Associate",
+    desc: "Earned the Oracle Certified Agentic AI Foundation Associate — a globally recognized certification in AI fundamentals.",
+  },
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle AI Foundation Associate",
@@ -258,6 +263,17 @@ const ACHIEVEMENT_CARDS = [
 ];
 
 const EXPERIENCE = [
+  {
+    date: "Feb 2026 – Apr 2026",
+    role: "Software Development with AI&ML",
+    company: "Mecandria IT Service and Solutions",
+    bullets: [
+      "Completed hands-on training in Artificial Intelligence, Machine Learning, and Full Stack Development, including the development of a full-stack business application",
+      "Gained practical experience in application deployment on remote servers and implementing security measures for secure hosting and protection",
+    ],
+    status: "completed-status",
+    statusText: "COMPLETED",
+  },
   {
     date: "Aug 2025 – Sep 2025",
     role: "AI Engineer Intern",
@@ -950,7 +966,7 @@ export default function Index() {
   return (
     <>
       <SEO
-        title="Pavithran G | AI & ML Developer Portfolio"
+        title="Pavithran G | Backend Developer & AI Engineer Portfolio"
         description="Portfolio of Pavithran G, an AI and ML developer building machine learning, computer vision, and automation projects with Python, TensorFlow, and modern web tools."
         path="/"
         keywords={[
@@ -1181,7 +1197,7 @@ export default function Index() {
 
             <div className="hero-role-tag">
               <span className="hero-role-line"></span>
-              <span className="hero-role-label">AI & ML DEVELOPER</span>
+              <span className="hero-role-label">Backend Developer & AI Engineer</span>
               <span className="hero-role-line"></span>
             </div>
 
@@ -1301,7 +1317,7 @@ export default function Index() {
                   <div className="profile-photo-dot"></div>
                 </div>
                 <div className="profile-name-tag">PAVITHRAN G</div>
-                <span className="profile-role-badge">AI & ML DEVELOPER</span>
+                <span className="profile-role-badge">Backend Developer & AI Engineer</span>
                 <div className="profile-meta-row">
                   <span className="profile-meta-item">
                     <i className="fa-solid fa-location-dot"></i> Tiruchengode, TN
@@ -1369,7 +1385,7 @@ export default function Index() {
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 4, suffix: "+", label: "Projects" },
                   { val: 140, suffix: "+", label: "LeetCode" },
-                  { val: 5 , suffix: "+", label: "Certifications" },
+                  { val: 5, suffix: "+", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
                     <div className="stat-number">
