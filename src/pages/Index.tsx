@@ -1368,8 +1368,8 @@ export default function Index() {
                 {[
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 4, suffix: "+", label: "Projects" },
-                  { val: 120, suffix: "+", label: "LeetCode" },
-                  { val: 3, suffix: "+", label: "Certifications" },
+                  { val: 140, suffix: "+", label: "LeetCode" },
+                  { val: 5 , suffix: "+", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
                     <div className="stat-number">
