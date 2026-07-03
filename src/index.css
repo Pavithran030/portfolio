@@ -2066,8 +2066,8 @@ html.lenis body {
 }
 
 .skill-icon-image {
-  width: 34px;
-  height: 34px;
+  width: 46px;
+  height: 46px;
   object-fit: contain;
   display: block;
   filter: drop-shadow(0 3px 8px hsl(0 0% 0% / 0.22));
