@@ -123,6 +123,7 @@ const PROJECTS = [
     longDesc:
       "Designed and implemented an RPA solution using UiPath to automate the fee concession approval process. Reduced manual processing time significantly and improved operational efficiency for the organization. The bot handles form validation, data extraction, and approval routing automatically.",
     tech: ["UiPath", "RPA", "Automation"],
+    source: "https://github.com/Pavithran030/RPA_Projects/tree/main/Fee_Concession_Approval",
     image: project001,
   },
   {
@@ -1229,7 +1230,7 @@ export default function Index() {
                   <path d="M7 17L17 7M17 7H7M17 7V17" />
                 </svg>
               </a>
-              <a href="/Pavithran_CV.pdf" className="hero-btn hero-btn--ghost" download>
+              <a href="/Pavithran_G.pdf" className="hero-btn hero-btn--ghost" download>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
