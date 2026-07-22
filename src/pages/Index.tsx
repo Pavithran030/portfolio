@@ -230,36 +230,91 @@ const ACHIEVEMENT_CARDS = [
     icon: "fa-solid fa-certificate",
     title: "Oracle Agentic AI Foundation Associate",
     desc: "Earned the Oracle Certified Agentic AI Foundation Associate — a globally recognized certification in AI fundamentals.",
+    issuer: "Oracle",
+    date: "Jan 2026",
+    credentialId: "ORCL-AAI-2026",
+    credentialUrl: "https://mylearn.oracle.com/",
   },
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle AI Foundation Associate",
     desc: "Earned the Oracle Certified AI Foundation Associate — a globally recognized certification in AI fundamentals.",
+    issuer: "Oracle",
+    date: "Dec 2025",
+    credentialId: "ORCL-AI-2025",
+    credentialUrl: "https://mylearn.oracle.com/",
+  },
+  {
+    icon: "fa-solid fa-certificate",
+    title: "TN-Skills",
+    desc: "Participated in the Level 1 - TN Skills 2025 Competition in the Software Application Developmnet Skill Category conducted by TNSDC in the month of September 2025.",
+    issuer: "TN-Skills",
+    date: "Sep 2025",
+    credentialId: "TN-SKILLS-2025",
+    credentialUrl: "https://www.tnskills.tn.gov.in/",
+  },
+  {
+    icon: "fa-solid fa-certificate",
+    title: "TN-Skills",
+    desc: "Participated in the Level 2 - TN Skills 2025 Competition in the Software Application Developmnet Skill Category conducted by TNSDC in the month of September 2026.",
+    issuer: "TN-Skills",
+    date: "Sep 2025",
+    credentialId: "TN-SKILLS-2025",
+    credentialUrl: "https://www.tnskills.tn.gov.in/",
+  },
+  {
+    icon: "fa-solid fa-certificate",
+    title: "TCS Code Vista",
+    desc: "Emerged as the 1491st Rank in the World Ranking for the year 2025 in season 13. A Global Coding Competition.",
+    issuer: "Tata Consultancy Services",
+    date: "2025",
+    credentialId: "TCS-CODEVISTA-2025",
+    credentialUrl: "https://www.tcs.com/"
   },
   {
     icon: "fa-solid fa-trophy",
     title: "NPTEL Elite — Joy of Computing",
     desc: "Certified from NPTEL Online Course 'The Joy of Computing using Python' with Elite grade.",
+    issuer: "NPTEL (IIT Madras)",
+    date: "Oct 2024",
+    credentialId: "NPTEL-JC-2024",
+    credentialUrl: "https://nptel.ac.in/",
   },
   {
     icon: "fa-solid fa-medal",
     title: "NPTEL Elite+Silver — Entrepreneurship",
     desc: "Certified from NPTEL 'Understanding Incubation and Entrepreneurship' with Elite+Silver grade.",
+    issuer: "NPTEL (IIT Madras)",
+    date: "Nov 2024",
+    credentialId: "NPTEL-EE-2024",
+    credentialUrl: "https://nptel.ac.in/",
   },
   {
     icon: "fa-solid fa-code",
     title: "HackerRank Java & Python Badge",
     desc: "Earned Java and Python badges on HackerRank, demonstrating strong programming fundamentals.",
+    issuer: "HackerRank",
+    date: "2024",
+    credentialId: "HR-JP-BADGE",
+    credentialUrl: "https://www.hackerrank.com/profile/Pavithran030",
   },
   {
     icon: "fa-solid fa-book",
     title: "Published Author — Hope's Tapestry",
     desc: "Contributed a story in the anthology 'Hope's Tapestry', published by Let's Write Publication.",
+    issuer: "Let's Write Publication",
+    date: "2024",
+    credentialId: "LWP-HT-2024",
+    credentialUrl: "https://www.amazon.in/",
   },
   {
     icon: "fa-solid fa-users",
     title: "Hackathon Participant",
     desc: "Participated in Hackathons conducted by Bhumi-Skilled and ICT Academy.",
+    issuer: "Bhumi-Skilled & ICT Academy",
+    date: "2024",
+    credentialId: "ICT-BHUMI-2024",
+    credentialUrl: "https://www.ictacademy.in/",
   },
 ];
 
@@ -487,6 +542,7 @@ export default function Index() {
   const [activeNav, setActiveNav] = useState("home");
   const [formSent, setFormSent] = useState(false);
   const [popupProject, setPopupProject] = useState<(typeof PROJECTS)[0] | null>(null);
+  const [popupCertificate, setPopupCertificate] = useState<(typeof ACHIEVEMENT_CARDS)[0] | null>(null);
 
   const cursorRingRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -644,7 +700,7 @@ export default function Index() {
 
     const addHover = () => {
       document
-        .querySelectorAll("a, button, .btn-primary, .btn-secondary, .btn-transmit, .skill-card, .project-card")
+        .querySelectorAll("a, button, .btn-primary, .btn-secondary, .btn-transmit, .skill-card, .project-card, .achievement-card")
         .forEach((el) => {
           el.addEventListener("mouseenter", () => ring.classList.add("hovering"));
           el.addEventListener("mouseleave", () => ring.classList.remove("hovering"));
@@ -1177,6 +1233,54 @@ export default function Index() {
         </div>
       )}
 
+      {/* CERTIFICATE POPUP */}
+      {popupCertificate && (
+        <div className="project-popup-overlay" onClick={() => setPopupCertificate(null)}>
+          <div className="project-popup certificate-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="popup-close" onClick={() => setPopupCertificate(null)}>
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+            <div className="certificate-popup-visual">
+              <div className="certificate-visual-glow"></div>
+              <div className="certificate-visual-inner">
+                <div className="certificate-visual-header">
+                  <span className="certificate-visual-badge">// VERIFIED CREDENTIAL</span>
+                  <span className="certificate-visual-id">{popupCertificate.credentialId}</span>
+                </div>
+                <i className={`${popupCertificate.icon} certificate-visual-icon`}></i>
+                <div className="certificate-visual-title">{popupCertificate.title}</div>
+                <div className="certificate-visual-recipient">RECIPIENT: PAVITHRAN G</div>
+                <div className="certificate-visual-footer">
+                  <div className="certificate-visual-issuer">ISSUER: {popupCertificate.issuer}</div>
+                  <div className="certificate-visual-date">DATE: {popupCertificate.date}</div>
+                </div>
+              </div>
+            </div>
+            <div className="popup-body">
+              <h3 className="popup-title">{popupCertificate.title}</h3>
+              <div
+                className="popup-desc"
+                style={{ maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}
+              >
+                {popupCertificate.desc}
+              </div>
+              <div className="popup-links">
+                {popupCertificate.credentialUrl ? (
+                  <a href={popupCertificate.credentialUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                    ↗ VERIFY CREDENTIAL
+                  </a>
+                ) : (
+                  <span className="btn-primary disabled">↗ VERIFY CREDENTIAL</span>
+                )}
+                <button onClick={() => setPopupCertificate(null)} className="btn-secondary">
+                  CLOSE
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="content-wrapper">
         {/* ===== HERO ===== */}
         <section id="home" className="hero-section">
@@ -1494,7 +1598,20 @@ export default function Index() {
           </div>
           <StaggerContainer className="achievement-cards">
             {ACHIEVEMENT_CARDS.map((a, i) => (
-              <motion.div className="achievement-card" key={i} variants={staggerChildVariants}>
+              <motion.div
+                className="achievement-card"
+                key={i}
+                variants={staggerChildVariants}
+                onClick={() => setPopupCertificate(a)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setPopupCertificate(a);
+                  }
+                }}
+              >
                 <i className={a.icon}></i>
                 <div>
                   <div className="achievement-card-title">{a.title}</div>

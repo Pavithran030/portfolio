@@ -2461,6 +2461,120 @@ html.lenis body {
   border-radius: 12px 12px 0 0;
 }
 
+/* ===== CERTIFICATE POPUP VISUAL ===== */
+.certificate-popup-visual {
+  width: 100%;
+  height: 240px;
+  background: linear-gradient(135deg, hsl(var(--bg-deep)) 0%, hsl(var(--bg-void)) 100%);
+  border-bottom: 1px solid hsl(var(--border-line) / 0.5);
+  border-radius: 12px 12px 0 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.certificate-visual-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, hsl(var(--accent-amber) / 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.certificate-visual-inner {
+  width: 100%;
+  height: 100%;
+  border: 1px solid hsl(var(--accent-amber) / 0.3);
+  border-radius: 8px;
+  background: hsl(var(--bg-surface) / 0.7);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.certificate-visual-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    hsl(var(--text-primary) / 0.015) 2px,
+    hsl(var(--text-primary) / 0.015) 4px
+  );
+  pointer-events: none;
+}
+
+.certificate-visual-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.certificate-visual-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: hsl(var(--accent-amber));
+  letter-spacing: 0.05em;
+}
+
+.certificate-visual-id {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: hsl(var(--text-muted) / 0.6);
+}
+
+.certificate-visual-icon {
+  font-size: 32px;
+  color: hsl(var(--accent-amber));
+  align-self: center;
+  filter: drop-shadow(0 0 8px hsl(var(--accent-amber) / 0.3));
+}
+
+.certificate-visual-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  color: hsl(var(--text-primary));
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.certificate-visual-recipient {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: hsl(var(--text-primary));
+  letter-spacing: 0.1em;
+  border-top: 1px dashed hsl(var(--border-line) / 0.8);
+  border-bottom: 1px dashed hsl(var(--border-line) / 0.8);
+  padding: 4px 0;
+  margin: 6px 0;
+}
+
+.certificate-visual-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: hsl(var(--text-muted));
+}
+
+.certificate-visual-issuer {
+  text-transform: uppercase;
+}
+
 .popup-body {
   padding: 24px 28px 28px;
 }
@@ -2906,6 +3020,18 @@ html.lenis body {
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.achievement-card:hover,
+.achievement-card:focus-visible {
+  background: hsl(var(--bg-elevated) / 0.5);
+  border-color: hsl(var(--accent-amber) / 0.6);
+  border-left-color: hsl(var(--accent-amber));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px hsl(var(--accent-amber) / 0.05);
 }
 
 .achievement-card i {
@@ -3384,6 +3510,28 @@ html.lenis body {
 
   .popup-image {
     height: 180px;
+  }
+
+  .certificate-popup-visual {
+    height: 180px;
+    padding: 12px;
+  }
+
+  .certificate-visual-inner {
+    padding: 12px;
+  }
+
+  .certificate-visual-icon {
+    font-size: 24px;
+  }
+
+  .certificate-visual-title {
+    font-size: 11px;
+  }
+
+  .certificate-visual-recipient {
+    font-size: 9px;
+    margin: 4px 0;
   }
 
   .popup-body {
