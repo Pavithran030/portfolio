@@ -218,76 +218,113 @@ const EDUCATION = [
   },
 ];
 
+interface AchievementCard {
+  icon: string;
+  title: string;
+  desc: string;
+  issuer: string;
+  date: string;
+  credentialId: string;
+  credentialUrl?: string;
+  imageUrl?: string;
+  pdfUrl?: string;
+}
+
 const ACHIEVEMENTS_STATS = [
   { value: 140, suffix: "+", label: "LeetCode Problems" },
   { value: 3, suffix: "", label: "Internships" },
-  { value: 5, suffix: "+", label: "Certifications" },
+  { value: 8, suffix: "", label: "Certifications" },
   { value: 4, suffix: "", label: "Projects Built" },
 ];
 
-const ACHIEVEMENT_CARDS = [
+const ACHIEVEMENT_CARDS: AchievementCard[] = [
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle Agentic AI Foundation Associate",
     desc: "Earned the Oracle Certified Agentic AI Foundation Associate — a globally recognized certification in AI fundamentals.",
     issuer: "Oracle",
-    date: "Jan 2026",
-    credentialId: "ORCL-AAI-2026",
+    date: "June 27, 2026",
+    credentialId: "102118432AAI26OFA",
     credentialUrl: "https://mylearn.oracle.com/",
+    imageUrl: "/certificates/Oracle_Agentic_AI.jpg",
+    pdfUrl: "/certificates/pdf/Oracle_Agentic_AI.pdf",
   },
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle AI Foundation Associate",
     desc: "Earned the Oracle Certified AI Foundation Associate — a globally recognized certification in AI fundamentals.",
     issuer: "Oracle",
-    date: "Dec 2025",
-    credentialId: "ORCL-AI-2025",
+    date: "July 31, 2025",
+    credentialId: "102118432OCI25AICFA",
     credentialUrl: "https://mylearn.oracle.com/",
+    imageUrl: "/certificates/Oracle_AI_Foundation.jpg",
+    pdfUrl: "/certificates/pdf/Oracle_AI_Foundation.pdf",
+  },
+  {
+    icon: "fa-solid fa-shield-halved",
+    title: "NPTEL Elite — Practical Cyber Security for Cyber Security Practitioners",
+    desc: "Completed the 12-week NPTEL Online Certification course on 'Practical Cyber Security for Cyber Security Practitioners' conducted by IIT Kanpur, with a consolidated score of 56%.",
+    issuer: "NPTEL (IIT Kanpur)",
+    date: "Jul-Oct 2025",
+    credentialId: "NPTEL25CS120S670400929",
+    credentialUrl: "https://nptel.ac.in/",
+    imageUrl: "/certificates/Practical Cyber Security for Cyber Security Practitioners.jpg",
+    pdfUrl: "/certificates/pdf/Practical Cyber Security for Cyber Security Practitioners (1).pdf",
   },
   {
     icon: "fa-solid fa-certificate",
-    title: "TN-Skills",
-    desc: "Participated in the Level 1 - TN Skills 2025 Competition in the Software Application Developmnet Skill Category conducted by TNSDC in the month of September 2025.",
+    title: "Level 1 - TN Skills 2025",
+    desc: "Participated in the Level 1 - TN Skills 2025 Competition in the Software Application Development Skill Category conducted by TNSDC in the month of September 2025.",
     issuer: "TN-Skills",
     date: "Sep 2025",
-    credentialId: "TN-SKILLS-2025",
+    credentialId: "TN-SKILLS-L1-2025",
     credentialUrl: "https://www.tnskills.tn.gov.in/",
+    imageUrl: "/certificates/TN_Skill_Level_1.jpg",
+    pdfUrl: "/certificates/pdf/TN_Skill_Level_1.pdf",
   },
   {
     icon: "fa-solid fa-certificate",
-    title: "TN-Skills",
-    desc: "Participated in the Level 2 - TN Skills 2025 Competition in the Software Application Developmnet Skill Category conducted by TNSDC in the month of September 2026.",
+    title: "Level 2 - TN Skills 2025",
+    desc: "Participated in the Level 2 - TN Skills 2025 Competition in the Software Application Development Skill Category conducted by TNSDC in the month of November - December 2025.",
     issuer: "TN-Skills",
-    date: "Sep 2025",
-    credentialId: "TN-SKILLS-2025",
+    date: "Nov-Dec 2025",
+    credentialId: "TN-SKILLS-L2-2025",
     credentialUrl: "https://www.tnskills.tn.gov.in/",
+    imageUrl: "/certificates/TN_Skills_Level-2.jpg",
+    pdfUrl: "/certificates/pdf/TN_Skills_Level-2.pdf",
   },
   {
     icon: "fa-solid fa-certificate",
-    title: "TCS Code Vista",
-    desc: "Emerged as the 1491st Rank in the World Ranking for the year 2025 in season 13. A Global Coding Competition.",
+    title: "TCS CodeVita Season 13 Rank Certificate",
+    desc: "Secured a global rank of 1491 in TCS CodeVita Season 13, showcasing exceptional competitive programming skills.",
     issuer: "Tata Consultancy Services",
     date: "2025",
-    credentialId: "TCS-CODEVISTA-2025",
-    credentialUrl: "https://www.tcs.com/"
+    credentialId: "1491 (Global Rank)",
+    credentialUrl: "https://www.tcs.com/",
+    imageUrl: "/certificates/TCS_CodeVita_Season13.jpg",
+    pdfUrl: "/certificates/pdf/TCS_CodeVita_Season13_pavithran030 (1).pdf",
   },
   {
     icon: "fa-solid fa-trophy",
-    title: "NPTEL Elite — Joy of Computing",
-    desc: "Certified from NPTEL Online Course 'The Joy of Computing using Python' with Elite grade.",
+    title: "NPTEL Elite — The Joy of Computing Using Python",
+    desc: "Certified from NPTEL Online Course 'The Joy of Computing using Python' conducted by IIT Madras with Elite grade (Consolidated Score: 67%).",
     issuer: "NPTEL (IIT Madras)",
-    date: "Oct 2024",
-    credentialId: "NPTEL-JC-2024",
+    date: "Jul-Oct 2024",
+    credentialId: "NPTEL24CS113S764600152",
     credentialUrl: "https://nptel.ac.in/",
+    imageUrl: "/certificates/The_Joy_of Computing_using Python.jpg",
+    pdfUrl: "/certificates/pdf/The Joy of Computing using Python.pdf",
   },
   {
     icon: "fa-solid fa-medal",
-    title: "NPTEL Elite+Silver — Entrepreneurship",
-    desc: "Certified from NPTEL 'Understanding Incubation and Entrepreneurship' with Elite+Silver grade.",
-    issuer: "NPTEL (IIT Madras)",
-    date: "Nov 2024",
-    credentialId: "NPTEL-EE-2024",
+    title: "NPTEL Elite+Silver — Understanding Incubation and Entrepreneurship",
+    desc: "Certified from NPTEL Online Course 'Understanding Incubation and Entrepreneurship' conducted by IIT Bombay with Elite+Silver grade (Consolidated Score: 83%).",
+    issuer: "NPTEL (IIT Bombay)",
+    date: "Jan-Apr 2025",
+    credentialId: "NPTEL25DE07S658601148",
     credentialUrl: "https://nptel.ac.in/",
+    imageUrl: "/certificates/Understanding Incubation and Entrepreneurship.jpg",
+    pdfUrl: "/certificates/pdf/Understanding Incubation and Entrepreneurship.pdf",
   },
   {
     icon: "fa-solid fa-code",
@@ -1240,21 +1277,48 @@ export default function Index() {
             <button className="popup-close" onClick={() => setPopupCertificate(null)}>
               <i className="fa-solid fa-xmark"></i>
             </button>
-            <div className="certificate-popup-visual">
-              <div className="certificate-visual-glow"></div>
-              <div className="certificate-visual-inner">
-                <div className="certificate-visual-header">
-                  <span className="certificate-visual-badge">// VERIFIED CREDENTIAL</span>
-                  <span className="certificate-visual-id">{popupCertificate.credentialId}</span>
+            <div className="certificate-popup-visual" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+              {popupCertificate.imageUrl ? (
+                <div style={{ width: "100%", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0c" }}>
+                  <div className="certificate-visual-glow" style={{ opacity: 0.6 }}></div>
+                  <img
+                    src={popupCertificate.imageUrl}
+                    alt={popupCertificate.title}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      zIndex: 2,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      if (popupCertificate.pdfUrl) {
+                        window.open(popupCertificate.pdfUrl, "_blank");
+                      } else {
+                        window.open(popupCertificate.imageUrl, "_blank");
+                      }
+                    }}
+                    title="Click to view full certificate"
+                  />
                 </div>
-                <i className={`${popupCertificate.icon} certificate-visual-icon`}></i>
-                <div className="certificate-visual-title">{popupCertificate.title}</div>
-                <div className="certificate-visual-recipient">RECIPIENT: PAVITHRAN G</div>
-                <div className="certificate-visual-footer">
-                  <div className="certificate-visual-issuer">ISSUER: {popupCertificate.issuer}</div>
-                  <div className="certificate-visual-date">DATE: {popupCertificate.date}</div>
-                </div>
-              </div>
+              ) : (
+                <>
+                  <div className="certificate-visual-glow"></div>
+                  <div className="certificate-visual-inner">
+                    <div className="certificate-visual-header">
+                      <span className="certificate-visual-badge">// VERIFIED CREDENTIAL</span>
+                      <span className="certificate-visual-id">{popupCertificate.credentialId}</span>
+                    </div>
+                    <i className={`${popupCertificate.icon} certificate-visual-icon`}></i>
+                    <div className="certificate-visual-title">{popupCertificate.title}</div>
+                    <div className="certificate-visual-recipient">RECIPIENT: PAVITHRAN G</div>
+                    <div className="certificate-visual-footer">
+                      <div className="certificate-visual-issuer">ISSUER: {popupCertificate.issuer}</div>
+                      <div className="certificate-visual-date">DATE: {popupCertificate.date}</div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             <div className="popup-body">
               <h3 className="popup-title">{popupCertificate.title}</h3>
@@ -1265,12 +1329,21 @@ export default function Index() {
                 {popupCertificate.desc}
               </div>
               <div className="popup-links">
+                {popupCertificate.pdfUrl ? (
+                  <a href={popupCertificate.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                    ↗ VIEW CERTIFICATE
+                  </a>
+                ) : popupCertificate.imageUrl ? (
+                  <a href={popupCertificate.imageUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                    ↗ VIEW CERTIFICATE
+                  </a>
+                ) : null}
                 {popupCertificate.credentialUrl ? (
-                  <a href={popupCertificate.credentialUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                  <a href={popupCertificate.credentialUrl} target="_blank" rel="noopener noreferrer" className={popupCertificate.pdfUrl || popupCertificate.imageUrl ? "btn-secondary" : "btn-primary"}>
                     ↗ VERIFY CREDENTIAL
                   </a>
                 ) : (
-                  <span className="btn-primary disabled">↗ VERIFY CREDENTIAL</span>
+                  <span className="btn-secondary disabled">↗ VERIFY CREDENTIAL</span>
                 )}
                 <button onClick={() => setPopupCertificate(null)} className="btn-secondary">
                   CLOSE
