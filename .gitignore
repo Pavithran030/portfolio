@@ -44,4 +44,4 @@ bun.lockb
 *.sln
 *.sw?
 
-public/certificates/pdf/*.pdf
+# public/certificates/pdf/*.pdf
