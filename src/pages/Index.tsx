@@ -233,7 +233,7 @@ interface AchievementCard {
 const ACHIEVEMENTS_STATS = [
   { value: 140, suffix: "+", label: "LeetCode Problems" },
   { value: 3, suffix: "", label: "Internships" },
-  { value: 8, suffix: "", label: "Certifications" },
+  { value: 10, suffix: "", label: "Certifications" },
   { value: 4, suffix: "", label: "Projects Built" },
 ];
 
@@ -655,6 +655,11 @@ export default function Index() {
 
   // ===== LOADER SEQUENCE =====
   useEffect(() => {
+    // Must run before any .to({ text: ... }) call below — TextPlugin has to be
+    // registered before its "text" property is used, otherwise the loader
+    // typing animation silently no-ops.
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
+
     const tl = gsap.timeline();
     tl.to({}, { duration: 0.7 })
       .to(loaderTextRef.current, { duration: 1.0, text: "INITIALIZING PORTFOLIO SYSTEMS...", ease: "none" }, 0.9)
@@ -693,13 +698,19 @@ export default function Index() {
       ScrollTrigger?.update?.();
     });
 
-    const raf = (time: number) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    // Drive Lenis from GSAP's own ticker instead of a separate rAF loop so
+    // Lenis's smoothed scroll position and ScrollTrigger's scrub/pin math
+    // read the same frame — running two independent rAF loops caused a
+    // 1-frame lag that showed up as jitter, most visibly in the pinned
+    // projects section.
+    const onTick = (time: number) => {
+      lenis.raf(time * 1000);
     };
-    requestAnimationFrame(raf);
+    gsap.ticker.add(onTick);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
+      gsap.ticker.remove(onTick);
       lenis.destroy();
       lenisRef.current = null;
     };
@@ -904,38 +915,23 @@ export default function Index() {
         }
       });
 
-      // ---- MODERN SECTION REVEALS (y + opacity, no clip-path clipping) ----
-      // Fix #8/#15: Removed aggressive clip-path and blur to prevent card clipping and compositing flash
-      const sections = Array.from(
-        document.querySelectorAll<HTMLElement>(".content-wrapper section:not(.hero-section):not(.projects-section)"),
-      );
-      sections.forEach((section, index) => {
-        gsap.fromTo(
-          section,
-          {
-            y: 60,
-            opacity: 0.2,
-            filter: "blur(3px)",
-          },
-          {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 88%",
-              end: "top 55%",
-              scrub: 0.5,
-            },
-            delay: index * 0.02,
-          },
-        );
-      });
+      // NOTE: section reveal (y + opacity) is intentionally handled by the
+      // <MotionSection> Framer Motion wrapper, not GSAP. A previous GSAP
+      // scrollTrigger scrub used to animate opacity/transform/filter on the
+      // exact same <section> elements that MotionSection controls — two
+      // engines writing to the same style properties every scroll frame,
+      // which is what caused the flicker/jitter during scroll. Do not
+      // reintroduce a GSAP tween targeting ".content-wrapper section" here.
     });
 
+    // Layout can still shift after lazy-loaded images/webfonts finish, which
+    // skews ScrollTrigger's start/end measurements (pins/scrub taken before
+    // final layout). Recalculate once everything has actually settled.
+    const onWindowLoad = () => ScrollTrigger.refresh();
+    window.addEventListener("load", onWindowLoad);
+
     return () => {
+      window.removeEventListener("load", onWindowLoad);
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [loaded, revealGone]);
@@ -1134,9 +1130,9 @@ export default function Index() {
               scrollToSection("home");
             }}
           >
-            <span className="nav-brand-mark">PG</span>
+            {/* <span className="nav-brand-mark">PG</span>
             <span className="nav-brand-divider"></span>
-            <span className="nav-brand-label">PORTFOLIO</span>
+            <span className="nav-brand-label">PORTFOLIO</span> */}
           </a>
           <ul className="nav-links-minimal">
             {NAV_LINKS.map((id) => (
@@ -1293,9 +1289,9 @@ export default function Index() {
                     }}
                     onClick={() => {
                       if (popupCertificate.pdfUrl) {
-                        window.open(popupCertificate.pdfUrl, "_blank");
+                        window.open(popupCertificate.pdfUrl, "_blank", "noopener,noreferrer");
                       } else {
-                        window.open(popupCertificate.imageUrl, "_blank");
+                        window.open(popupCertificate.imageUrl, "_blank", "noopener,noreferrer");
                       }
                     }}
                     title="Click to view full certificate"
@@ -1563,7 +1559,7 @@ export default function Index() {
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 4, suffix: "+", label: "Projects" },
                   { val: 140, suffix: "+", label: "LeetCode" },
-                  { val: 5, suffix: "+", label: "Certifications" },
+                  { val: 10, suffix: "+", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
                     <div className="stat-number">
@@ -1603,8 +1599,8 @@ export default function Index() {
                           className="skill-card"
                           key={skill.name}
                           variants={staggerChildVariants}
-                          onMouseMove={handleSkillMouseMove as any}
-                          onMouseLeave={handleSkillMouseLeave as any}
+                          onMouseMove={handleSkillMouseMove}
+                          onMouseLeave={handleSkillMouseLeave}
                         >
                           <div className="skill-card-core">
                             <div className="skill-icon">

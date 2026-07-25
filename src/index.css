@@ -54,6 +54,7 @@
 }
 
 html {
+  position: relative;
   overflow: auto;
   scroll-behavior: auto;
   scroll-padding-top: 96px;
@@ -70,6 +71,7 @@ html {
 }
 
 body {
+  position: relative;
   background: hsl(var(--bg-void));
   color: hsl(var(--text-primary));
   font-family: var(--font-mono);

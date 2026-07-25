@@ -16,12 +16,18 @@ declare const gsap: {
 	fromTo: (...args: unknown[]) => GsapTween;
 	set: (...args: unknown[]) => void;
 	registerPlugin: (...plugins: unknown[]) => void;
+	ticker: {
+		add: (callback: (time: number) => void) => void;
+		remove: (callback: (time: number) => void) => void;
+		lagSmoothing: (threshold: number) => void;
+	};
 };
 
 declare const ScrollTrigger: {
 	create: (...args: unknown[]) => unknown;
 	getAll: () => Array<{ kill: () => void }>;
 	update?: () => void;
+	refresh: (safe?: boolean) => void;
 };
 
 declare const ScrollToPlugin: {
