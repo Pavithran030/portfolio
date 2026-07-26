@@ -578,6 +578,8 @@ export default function Index() {
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
   const [formSent, setFormSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [popupProject, setPopupProject] = useState<(typeof PROJECTS)[0] | null>(null);
   const [popupCertificate, setPopupCertificate] = useState<(typeof ACHIEVEMENT_CARDS)[0] | null>(null);
 
@@ -1047,10 +1049,41 @@ export default function Index() {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormSent(true);
-    setTimeout(() => setFormSent(false), 3000);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const subject = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send the email.");
+      }
+
+      setFormSent(true);
+      e.currentTarget.reset();
+      setTimeout(() => setFormSent(false), 5000);
+    } catch (err: any) {
+      console.error("Failed to send email:", err);
+      setSubmitError(err.message || "Failed to send message. Please check your network and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1776,9 +1809,14 @@ export default function Index() {
                   <label>Message</label>
                   <textarea name="message" required placeholder="Tell me about your project..." rows={4}></textarea>
                 </div>
-                <button type="submit" className={`btn-submit ${formSent ? "sent" : ""}`}>
-                  {formSent ? "✓ Message Sent" : "Send Message"}
+                <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""} ${isSubmitting ? "submitting" : ""}`}>
+                  {isSubmitting ? "Sending..." : formSent ? "✓ Message Sent" : "Send Message"}
                 </button>
+                {submitError && (
+                  <p className="form-error-msg">
+                    <span>❌</span> {submitError}
+                  </p>
+                )}
               </form>
             </MotionItem>
           </div>

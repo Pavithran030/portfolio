@@ -3261,6 +3261,23 @@ html.lenis body {
   color: hsl(var(--bg-void));
 }
 
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.form-error-msg {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: hsl(var(--destructive));
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 @media (max-width: 768px) {
   .contact-grid {
     grid-template-columns: 1fr;
