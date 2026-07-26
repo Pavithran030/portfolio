@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       from: `Portfolio Contact Form <${fromEmail}>`,
       to: toEmail,
       subject: `[Portfolio Contact] ${subject} - from ${name}`,
-      replyTo: email,
+      reply_to: email,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
           <h2 style="color: #333; border-bottom: 1px solid #eaeaea; padding-bottom: 10px;">New Message from Portfolio</h2>
