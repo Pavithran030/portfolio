@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { toast } from "sonner";
 import {
   Code2,
   FileCode,
@@ -1054,7 +1055,8 @@ export default function Index() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const subject = formData.get("subject") as string;
@@ -1076,11 +1078,14 @@ export default function Index() {
       }
 
       setFormSent(true);
-      e.currentTarget.reset();
+      form.reset();
+      toast.success("Message sent successfully!");
       setTimeout(() => setFormSent(false), 5000);
     } catch (err: any) {
       console.error("Failed to send email:", err);
-      setSubmitError(err.message || "Failed to send message. Please check your network and try again.");
+      const errorMsg = err.message || "Failed to send message. Please check your network and try again.";
+      setSubmitError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }

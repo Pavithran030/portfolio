@@ -45,3 +45,4 @@ bun.lockb
 *.sw?
 
 # public/certificates/pdf/*.pdf
+.env*
