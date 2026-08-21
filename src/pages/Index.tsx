@@ -26,8 +26,7 @@ import project002 from "@/assets/project-002.jpg";
 import project003 from "@/assets/project-003.jpg";
 import project004 from "@/assets/project-004.jpg";
 import project004Sync from "@/assets/project-004-syncwork.svg";
-import project005 from "@/assets/project-005.jpg";
-import project006 from "@/assets/project-006.jpg";
+import projectLexicon from "@/assets/project-lexicon.png";
 import profilePhoto from "@/assets/pavithran.jpeg";
 import skillPython from "@/assets/skills/python.svg";
 import skillC from "@/assets/skills/c.svg";
@@ -49,16 +48,15 @@ import { SEO } from "@/components/SEO";
 import { MotionSection, MotionItem, StaggerContainer, staggerChildVariants } from "@/components/MotionSection";
 import { ScrollTimeline } from "@/components/ScrollTimeline";
 
-// Section background colors for scroll-driven transitions
 const SECTION_BG_COLORS = [
   { section: "#home", color: "hsl(0, 0%, 0%)" },
-  { section: "#about", color: "hsl(0, 0%, 7%)" },
+  { section: "#about", color: "hsla(0, 1%, 21%, 1.00)" },
   { section: "#skills", color: "hsl(0, 0%, 0%)" },
-  { section: "#projects", color: "hsl(0, 0%, 7%)" },
-  { section: "#experience", color: "hsl(0, 0%, 8%)" },
-  { section: ".achievements-section", color: "hsl(0, 0%, 13%)" },
-  { section: "#education", color: "hsl(0, 0%, 9%)" },
-  { section: "#contact", color: "hsl(0, 0%, 12%)" },
+  { section: "#projects", color: "hsla(0, 2%, 31%, 1.00)" },
+  { section: "#experience", color: "hsl(0, 0%, 0%)" },
+  { section: ".achievements-section", color: "hsl(0, 0%, 7%)" },
+  { section: "#education", color: "hsl(0, 0%, 0%)" },
+  { section: "#contact", color: "hsla(0, 5%, 15%, 1.00)" },
 ];
 
 const NAV_LINKS = ["home", "about", "skills", "projects", "experience", "contact"];
@@ -119,6 +117,16 @@ const SKILLS_BY_CATEGORY = CATEGORY_ORDER.map((cat) => ({
 const PROJECTS = [
   {
     id: "001",
+    title: "Lexicon AI — Agentic Hybrid RAG Engine",
+    desc: "A self-correcting Retrieval-Augmented Generation (RAG) system for multi-source document repositories.",
+    longDesc:
+      "A self-correcting Retrieval-Augmented Generation (RAG) system for multi-source document repositories. Lexicon AI replaces naive single-shot vector retrieval with parallel sparse/dense search, reciprocal rank fusion, cross-encoder reranking, an adaptive query router, a semantic answer cache, and an autonomous agentic control loop (Corrective RAG) built on LangGraph — served by FastAPI with token-by-token streaming answers.",
+    tech: ["LangGraph", "FastAPI", "Python", "RAG"],
+    source: "https://github.com/Pavithran030/Agentic_Hybrid_RAG",
+    image: projectLexicon,
+  },
+  {
+    id: "002",
     title: "Fee Concession Automation",
     desc: "RPA solution using UiPath to automate fee concession approval process, reducing manual processing time.",
     longDesc:
@@ -128,7 +136,7 @@ const PROJECTS = [
     image: project001,
   },
   {
-    id: "002",
+    id: "003",
     title: "Farm Assist — AI Chatbot",
     desc: "Bilingual (Tamil/English) AI-powered chatbot using React.js and n8n for real-time farmer assistance.",
     longDesc:
@@ -138,7 +146,7 @@ const PROJECTS = [
     image: project002,
   },
   {
-    id: "003",
+    id: "004",
     title: "Motion Capture System",
     desc: "Real-time human motion recognition using OpenCV, MediaPipe and Unity for 3D visualization.",
     longDesc:
@@ -148,7 +156,7 @@ const PROJECTS = [
     image: project003,
   },
   {
-    id: "004",
+    id: "005",
     title: "Syncwork",
     desc: "Syncwork is a real-time collaborative Kanban board where teams organize tasks, assign work, and see every update instantly — built with React and Supabase, no backend required.",
     longDesc: `Syncwork is a real-time collaborative task management application designed for small teams who need to stay in sync without the overhead of complex project management tools.
@@ -168,24 +176,6 @@ const PROJECTS = [
     demo: "https://syncwork-mu.vercel.app",
     source: "https://github.com/Pavithran030/AIDLC-Project",
     image: project004Sync,
-  },
-  {
-    id: "005",
-    title: "Vision Attendance System",
-    desc: "Placeholder: upcoming real-time face recognition attendance application.",
-    longDesc:
-      "Placeholder project. Planned flow includes webcam capture, identity matching, secure logs, and analytics dashboard exports.",
-    tech: ["OpenCV", "Face Recognition", "React"],
-    image: project005,
-  },
-  {
-    id: "006",
-    title: "AI Interview Copilot",
-    desc: "Placeholder: upcoming interview simulation and feedback assistant.",
-    longDesc:
-      "Placeholder project. Planned module includes role-based mock sessions, rubric scoring, and personalized improvement reports.",
-    tech: ["LLM", "Speech", "Evaluation"],
-    image: project006,
   },
 ];
 
@@ -235,7 +225,7 @@ const ACHIEVEMENTS_STATS = [
   { value: 140, suffix: "+", label: "LeetCode Problems" },
   { value: 3, suffix: "", label: "Internships" },
   { value: 10, suffix: "", label: "Certifications" },
-  { value: 4, suffix: "", label: "Projects Built" },
+  { value: 5, suffix: "", label: "Projects Built" },
 ];
 
 const ACHIEVEMENT_CARDS: AchievementCard[] = [
@@ -1595,7 +1585,7 @@ export default function Index() {
               <div className="about-stats">
                 {[
                   { val: 3, suffix: "+", label: "Internships" },
-                  { val: 4, suffix: "+", label: "Projects" },
+                  { val: 5, suffix: "+", label: "Projects" },
                   { val: 140, suffix: "+", label: "LeetCode" },
                   { val: 10, suffix: "+", label: "Certifications" },
                 ].map((s) => (

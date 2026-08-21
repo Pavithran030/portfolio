@@ -921,7 +921,7 @@ canvas {
   z-index: 1;
 }
 
-section {
+.content-wrapper section {
   min-height: auto;
   padding: 48px var(--section-inline) 64px;
   position: relative;
@@ -1583,8 +1583,7 @@ html.lenis body {
 
 .about-section {
   background:
-    radial-gradient(circle at 12% 20%, hsl(var(--accent-ice) / 0.055), transparent 32%),
-    linear-gradient(140deg, hsl(var(--bg-mid)) 0%, hsl(var(--bg-deep)) 55%, hsl(var(--bg-soft)) 100%);
+    radial-gradient(circle at 12% 20%, hsl(var(--accent-ice) / 0.055), transparent 32%);
 }
 
 .skills-section {
@@ -1595,8 +1594,7 @@ html.lenis body {
       transparent 0,
       transparent 36px,
       hsl(var(--border-line) / 0.12) 36px,
-      hsl(var(--border-line) / 0.12) 37px),
-    linear-gradient(180deg, hsl(var(--bg-void)) 0%, hsl(var(--bg-mid)) 52%, hsl(var(--bg-deep)) 100%);
+      hsl(var(--border-line) / 0.12) 37px);
 }
 
 .about-grid {
@@ -2140,8 +2138,7 @@ html.lenis body {
   padding: 0;
   overflow: visible;
   background:
-    radial-gradient(circle at 85% 25%, hsl(var(--accent-ice) / 0.06), transparent 30%),
-    linear-gradient(115deg, hsl(var(--bg-mid)) 0%, hsl(var(--bg-soft)) 100%);
+    radial-gradient(circle at 85% 25%, hsl(var(--accent-ice) / 0.06), transparent 30%);
 }
 
 .projects-pin-wrapper,
@@ -2630,7 +2627,6 @@ html.lenis body {
 .education-section {
   background:
     radial-gradient(circle at 16% 16%, hsl(var(--accent-mint) / 0.08), transparent 34%),
-    linear-gradient(175deg, hsl(var(--bg-void)) 0%, hsl(var(--bg-mid)) 58%, hsl(var(--bg-deep)) 100%),
     repeating-linear-gradient(0deg,
       transparent 0,
       transparent 40px,
@@ -2952,14 +2948,12 @@ html.lenis body {
 /* ===== ACHIEVEMENTS ===== */
 .achievements-section {
   background:
-    radial-gradient(circle at 84% 22%, hsl(var(--accent-amber) / 0.1), transparent 34%),
-    linear-gradient(148deg, hsl(var(--bg-mid)) 0%, hsl(var(--bg-soft)) 62%, hsl(var(--bg-deep)) 100%);
+    radial-gradient(circle at 84% 22%, hsl(var(--accent-amber) / 0.1), transparent 34%);
 }
 
 .experience-section {
   background:
-    radial-gradient(circle at 14% 74%, hsl(var(--accent-ice) / 0.09), transparent 32%),
-    linear-gradient(198deg, hsl(var(--bg-deep)) 0%, hsl(var(--bg-mid)) 52%, hsl(var(--bg-soft)) 100%);
+    radial-gradient(circle at 14% 74%, hsl(var(--accent-ice) / 0.09), transparent 32%);
 }
 
 .achievements-stats {
@@ -3095,8 +3089,7 @@ html.lenis body {
 .contact-section {
   background:
     radial-gradient(circle at 78% 18%, hsl(var(--accent-ice) / 0.08), transparent 35%),
-    radial-gradient(circle at 20% 84%, hsl(var(--accent-mint) / 0.06), transparent 30%),
-    linear-gradient(180deg, hsl(var(--bg-soft)) 0%, hsl(var(--bg-mid)) 58%, hsl(var(--bg-deep)) 100%);
+    radial-gradient(circle at 20% 84%, hsl(var(--accent-mint) / 0.06), transparent 30%);
 }
 
 .contact-grid {
