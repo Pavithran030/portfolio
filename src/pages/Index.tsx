@@ -224,11 +224,21 @@ interface AchievementCard {
 const ACHIEVEMENTS_STATS = [
   { value: 140, suffix: "+", label: "LeetCode Problems" },
   { value: 3, suffix: "", label: "Internships" },
-  { value: 10, suffix: "", label: "Certifications" },
+  { value: 11, suffix: "", label: "Certifications" },
   { value: 5, suffix: "", label: "Projects Built" },
 ];
 
 const ACHIEVEMENT_CARDS: AchievementCard[] = [
+  {
+    icon: "fa-solid fa-certificate",
+    title: "Redis Associate Developer",
+    desc: "Completed all requirements to be globally certified as a Redis Associate Developer.",
+    issuer: "Redis",
+    date: "August 23, 2026",
+    credentialId: "192196161",
+    credentialUrl: "https://redis.io/",
+    imageUrl: "https://github.com/user-attachments/assets/c00c6ff3-dff2-4e7e-97ba-9dd3c3b32796",
+  },
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle Agentic AI Foundation Associate",
