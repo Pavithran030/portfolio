@@ -237,7 +237,7 @@ const ACHIEVEMENT_CARDS: AchievementCard[] = [
     date: "August 23, 2026",
     credentialId: "192196161",
     credentialUrl: "https://redis.io/",
-    imageUrl: "https://github.com/user-attachments/assets/c00c6ff3-dff2-4e7e-97ba-9dd3c3b32796",
+    imageUrl: "/certificates/Redis_Associate_Developer.png",
   },
   {
     icon: "fa-solid fa-certificate",
