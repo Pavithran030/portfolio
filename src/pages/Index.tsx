@@ -27,7 +27,7 @@ import project003 from "@/assets/project-003.jpg";
 import project004 from "@/assets/project-004.jpg";
 import project004Sync from "@/assets/project-004-syncwork.svg";
 import projectLexicon from "@/assets/project-lexicon.png";
-import profilePhoto from "@/assets/pavithran.jpeg";
+import profilePhoto from "@/assets/pavithran.jpg";
 import skillPython from "@/assets/skills/python.svg";
 import skillC from "@/assets/skills/c.svg";
 import skillMySQL from "@/assets/skills/mysql.svg";
