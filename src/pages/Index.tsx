@@ -27,9 +27,6 @@ import {
   Briefcase,
   Layers,
   Cpu,
-  ChevronLeft,
-  ChevronRight,
-  SlidersHorizontal,
   ArrowRight,
 } from "lucide-react";
 import Lenis from "lenis";
@@ -238,7 +235,7 @@ Key Architectural Capabilities:
 ];
 
 const ACHIEVEMENTS_STATS = [
-  { value: 140, suffix: "+", label: "LeetCode Solved" },
+  { value: 200, suffix: "+", label: "LeetCode Solved" },
   { value: 3, suffix: "+", label: "Internships Completed" },
   { value: 11, suffix: "", label: "Verified Credentials" },
   { value: 5, suffix: "+", label: "AI & ML Projects" },
@@ -475,21 +472,11 @@ export default function Index() {
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
   
-  // Interactive filters
-  const [projectCategory, setProjectCategory] = useState<string>("ALL");
-  
   // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
   const projectsScrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const handleScrollProjects = (dir: "left" | "right") => {
-    const el = projectsScrollRef.current;
-    if (!el) return;
-    const scrollAmount = Math.max(340, el.clientWidth * 0.75);
-    el.scrollBy({ left: dir === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
-  };
-  
   // Contact & feedback
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [formSent, setFormSent] = useState(false);
@@ -510,6 +497,8 @@ export default function Index() {
 
   const mousePos = useRef({ x: 0, y: 0 });
   const ringPos = useRef({ x: 0, y: 0 });
+  const dotPos = useRef({ x: 0, y: 0 });
+  const scrollLockYRef = useRef(0);
 
   // Sync initial theme to cyber-emerald
   useEffect(() => {
@@ -641,47 +630,148 @@ export default function Index() {
   useEffect(() => {
     if (!loaded || !revealGone || window.innerWidth <= 768) return;
 
+    const ring = cursorRingRef.current;
+    const dot = cursorDotRef.current;
+    if (!ring || !dot) return;
+
+    let hasMoved = false;
+
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
-      if (cursorDotRef.current) {
-        cursorDotRef.current.style.left = `${e.clientX}px`;
-        cursorDotRef.current.style.top = `${e.clientY}px`;
+      if (!hasMoved) {
+        // Snap straight to the first real pointer position instead of
+        // lerping in all the way from the (0,0) default.
+        hasMoved = true;
+        ringPos.current = { x: e.clientX, y: e.clientY };
+        dotPos.current = { x: e.clientX, y: e.clientY };
+        ring.classList.add("visible");
+        dot.classList.add("visible");
       }
     };
 
     const onMouseDown = () => {
-      cursorRingRef.current?.classList.add("clicking");
-      cursorDotRef.current?.classList.add("clicking");
+      ring.classList.add("clicking");
+      dot.classList.add("clicking");
+    };
+    const onMouseUp = () => {
+      ring.classList.remove("clicking");
+      dot.classList.remove("clicking");
     };
 
-    const onMouseUp = () => {
-      cursorRingRef.current?.classList.remove("clicking");
-      cursorDotRef.current?.classList.remove("clicking");
+    // Fade out when the pointer leaves the viewport so the cursor doesn't
+    // linger stuck at the last known edge position.
+    const onDocMouseLeave = () => {
+      ring.classList.remove("visible");
+      dot.classList.remove("visible");
+    };
+    const onDocMouseEnter = () => {
+      if (hasMoved) {
+        ring.classList.add("visible");
+        dot.classList.add("visible");
+      }
+    };
+
+    // Delegated hover detection: reacts to interactive elements (including
+    // ones mounted later, like popups) without re-binding listeners.
+    // Only elements a click actually does something on — matches the CSS
+    // `cursor: pointer` rule below. Text inputs are intentionally excluded:
+    // they get the native text caret, not a hand cursor.
+    const CLICKABLE_SELECTOR = "a, button, [role='button'], .project-visual, .achievement-card";
+    const TEXT_SELECTOR = "p, h1, h2, h3, h4, li";
+
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(CLICKABLE_SELECTOR)) {
+        // The native hand cursor takes over here (see CSS), so fade the
+        // custom ring/dot out instead of showing both at once.
+        ring.classList.add("hovering");
+        ring.classList.remove("text-hover");
+        dot.classList.add("hovering");
+      } else if (target.closest(TEXT_SELECTOR)) {
+        ring.classList.add("text-hover");
+        ring.classList.remove("hovering");
+        dot.classList.remove("hovering");
+      } else {
+        ring.classList.remove("hovering", "text-hover");
+        dot.classList.remove("hovering");
+      }
     };
 
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mouseleave", onDocMouseLeave);
+    document.addEventListener("mouseenter", onDocMouseEnter);
+    document.addEventListener("mouseover", onMouseOver);
 
     let rafId: number;
-    const updateRing = () => {
+    const tick = () => {
+      // Dot: fast, tight follow. Still smoothed (rather than snapping
+      // straight to the raw mousemove coordinate) so it stays in lockstep
+      // with the ring on the same animation-frame clock instead of the two
+      // visibly tearing apart at speed.
+      dotPos.current.x += (mousePos.current.x - dotPos.current.x) * 0.5;
+      dotPos.current.y += (mousePos.current.y - dotPos.current.y) * 0.5;
+      // Ring: slower trailing follow for the classic dual-cursor feel.
       ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.15;
       ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.15;
-      if (cursorRingRef.current) {
-        cursorRingRef.current.style.left = `${ringPos.current.x}px`;
-        cursorRingRef.current.style.top = `${ringPos.current.y}px`;
-      }
-      rafId = requestAnimationFrame(updateRing);
+
+      dot.style.left = `${dotPos.current.x}px`;
+      dot.style.top = `${dotPos.current.y}px`;
+      ring.style.left = `${ringPos.current.x}px`;
+      ring.style.top = `${ringPos.current.y}px`;
+
+      rafId = requestAnimationFrame(tick);
     };
-    rafId = requestAnimationFrame(updateRing);
+    rafId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mouseleave", onDocMouseLeave);
+      document.removeEventListener("mouseenter", onDocMouseEnter);
+      document.removeEventListener("mouseover", onMouseOver);
       cancelAnimationFrame(rafId);
     };
   }, [loaded, revealGone]);
+
+  // ===== LOCK BACKGROUND SCROLL WHILE A POPUP / MENU IS OPEN =====
+  useEffect(() => {
+    const isOverlayOpen = mobileMenuOpen || !!popupProject || !!popupCertificate;
+    if (isOverlayOpen) {
+      // `overflow: hidden` removes the scrollbar, which reflows the page
+      // width and instantly jumps the scroll position right as the popup
+      // opens. Freezing the body in place with `position: fixed` at its
+      // current offset avoids that reflow-triggered jump entirely.
+      const y = window.scrollY;
+      scrollLockYRef.current = y;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${y}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      // Lenis intercepts wheel/touch input at the window level regardless of
+      // what's under the cursor, so without pausing it, scrolling over an
+      // open popup still scrolled the page behind it.
+      lenisRef.current?.stop();
+    } else {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollLockYRef.current);
+      lenisRef.current?.start();
+    }
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+    };
+  }, [mobileMenuOpen, popupProject, popupCertificate]);
 
   // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION =====
   useEffect(() => {
@@ -728,12 +818,6 @@ export default function Index() {
     setMobileMenuOpen(false);
   }, []);
 
-  // Filtered Projects
-  const filteredProjects = useMemo(() => {
-    if (projectCategory === "ALL") return PROJECTS;
-    return PROJECTS.filter((p) => p.category.toUpperCase().includes(projectCategory.toUpperCase()));
-  }, [projectCategory]);
-
   // ===== PINNED NORMAL SCROLL TO HORIZONTAL TRANSLATION FOR PROJECTS =====
   useEffect(() => {
     if (!loaded || !revealGone) return;
@@ -744,28 +828,40 @@ export default function Index() {
 
     // Small delay to ensure layout measurements are exact after render
     const timer = setTimeout(() => {
-      const getScrollDistance = () => {
-        return Math.max(0, track.scrollWidth - track.clientWidth);
-      };
-
       let ctx: gsap.Context | null = null;
 
       if (window.innerWidth > 768) {
-        // Desktop / Laptop: Pin the section and map vertical page scroll to horizontal travel
-        const scrollDistance = getScrollDistance();
-        if (scrollDistance > 20) {
+        // Desktop / Laptop: Pin the section and map vertical page scroll to horizontal travel.
+        // Distance math ported as-is from the main branch's ProjectsHorizontalScroll: measure
+        // against the clipping wrapper (.projects-viewport-mask), not the track itself — the
+        // track is `width: max-content` and unclipped, so its own clientWidth always equals
+        // its scrollWidth and would report a distance of 0.
+        const wrapper = container.querySelector(".projects-viewport-mask") as HTMLElement | null;
+        const wrapperStyles = wrapper ? window.getComputedStyle(wrapper) : null;
+        const padLeft = wrapperStyles ? parseFloat(wrapperStyles.paddingLeft) || 0 : 0;
+        const padRight = wrapperStyles ? parseFloat(wrapperStyles.paddingRight) || 0 : 0;
+        const trackViewportWidth = (wrapper ? wrapper.clientWidth : track.clientWidth) - padLeft - padRight;
+        const cards = track.querySelectorAll<HTMLElement>(".project-card");
+        const lastCard = cards[cards.length - 1];
+        const byTrackWidth = Math.max(track.scrollWidth - trackViewportWidth, 0);
+        const byLastCard = lastCard
+          ? Math.max(lastCard.offsetLeft + lastCard.offsetWidth - trackViewportWidth, 0)
+          : 0;
+        const scrollDistance = Math.max(byTrackWidth, byLastCard);
+
+        if (scrollDistance > 0) {
           ctx = gsap.context(() => {
             gsap.to(track, {
-              x: () => -scrollDistance,
+              x: -scrollDistance,
               ease: "none",
               scrollTrigger: {
                 trigger: container,
+                start: "top top",
+                end: () => `+=${scrollDistance}`,
+                scrub: true,
                 pin: true,
-                start: "top top+=75",
-                end: () => `+=${scrollDistance + 150}`,
-                scrub: 0.8,
-                invalidateOnRefresh: true,
                 anticipatePin: 1,
+                invalidateOnRefresh: true,
                 onUpdate: (self) => {
                   setScrollProgress(Math.round(self.progress * 100));
                 },
@@ -797,7 +893,7 @@ export default function Index() {
     return () => {
       clearTimeout(timer);
     };
-  }, [loaded, revealGone, filteredProjects]);
+  }, [loaded, revealGone]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1303,7 +1399,7 @@ export default function Index() {
                 {[
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 5, suffix: "+", label: "Projects" },
-                  { val: 140, suffix: "+", label: "LeetCode" },
+                  { val: 200, suffix: "+", label: "LeetCode" },
                   { val: 11, suffix: "", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
@@ -1374,58 +1470,10 @@ export default function Index() {
         {/* ===== PROJECTS ===== */}
         <section id="projects" ref={projectsContainerRef} className="projects-section-pinned">
           <div className="projects-inner-wrap">
-            <div className="projects-header-top">
-              <div>
-                <span className="section-label">// 03. FEATURED WORK</span>
-                <h2 className="section-heading">
-                  Featured <span className="accent">Projects</span>
-                </h2>
-              </div>
-              
-              {/* Scroll Navigation Controls */}
-              <div className="projects-scroll-nav-bar">
-                <span className="projects-scroll-guide">
-                  <SlidersHorizontal size={13} className="text-emerald-400" />
-                  <span>Scroll Down to Slide Projects &rarr;</span>
-                </span>
-                <div className="projects-nav-arrows">
-                  <button
-                    type="button"
-                    onClick={() => handleScrollProjects("left")}
-                    className="projects-nav-btn"
-                    aria-label="Scroll projects left"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleScrollProjects("right")}
-                    className="projects-nav-btn"
-                    aria-label="Scroll projects right"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="projects-filter-tabs">
-              {["ALL", "AI & ML", "AUTOMATION", "WEB APPS"].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => {
-                    setProjectCategory(cat);
-                    if (projectsScrollRef.current) {
-                      projectsScrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`projects-filter-btn ${projectCategory === cat ? "active" : ""}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            <span className="section-label">// 03. FEATURED WORK</span>
+            <h2 className="section-heading">
+              Featured <span className="accent">Projects</span>
+            </h2>
 
             {/* Horizontal Scroll Track (pinned translation container) */}
             <div className="projects-viewport-mask">
@@ -1433,7 +1481,7 @@ export default function Index() {
                 ref={projectsScrollRef}
                 className="projects-horizontal-track"
               >
-                {filteredProjects.map((p) => (
+                {PROJECTS.map((p) => (
                   <div
                     className="project-card project-card-horizontal"
                     key={p.id}

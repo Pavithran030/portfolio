@@ -257,27 +257,44 @@ canvas {
   border: 1.5px solid hsl(var(--accent-ice) / 0.7);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 10000;
+  /* Above every overlay/modal in the page (highest is .project-popup-overlay
+     at 10005) — otherwise the popup paints over the cursor and, combined
+     with `cursor: none` on body/buttons, the pointer becomes fully
+     invisible while a modal is open. */
+  z-index: 10010;
+  opacity: 0;
   transform: translate(-50%, -50%);
-  will-change: left, top;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.25s ease;
+  will-change: left, top, transform, opacity;
+}
+
+.cursor-ring.visible {
+  opacity: 1;
 }
 
 .cursor-ring.hovering {
   transform: translate(-50%, -50%) scale(1.6);
   border-color: hsl(var(--accent-mint));
   background: hsl(var(--accent-ice) / 0.08);
-  transition: transform 0.2s ease, border-color 0.2s, background 0.2s;
+}
+
+/* Over anything actually clickable, the native hand cursor takes over (see
+   the cursor:pointer rule below) — fade the custom ring/dot out instead of
+   showing both cursors at once. Compound selector so this reliably beats
+   `.visible`'s opacity regardless of rule order. */
+.cursor-ring.visible.hovering,
+.cursor-dot.visible.hovering {
+  opacity: 0;
 }
 
 .cursor-ring.text-hover {
   transform: translate(-50%, -50%) scaleX(2.2) scaleY(0.3);
   border-color: hsl(var(--accent-ice));
-  transition: transform 0.2s ease, border-color 0.2s;
 }
 
 .cursor-ring.clicking {
   transform: translate(-50%, -50%) scale(0.7);
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, opacity 0.25s ease;
 }
 
 .cursor-dot {
@@ -287,14 +304,19 @@ canvas {
   background: hsl(var(--accent-ice));
   border-radius: 50%;
   pointer-events: none;
-  z-index: 10001;
+  z-index: 10011;
+  opacity: 0;
   transform: translate(-50%, -50%);
-  will-change: left, top;
+  transition: transform 0.1s ease, opacity 0.25s ease;
+  will-change: left, top, transform, opacity;
+}
+
+.cursor-dot.visible {
+  opacity: 1;
 }
 
 .cursor-dot.clicking {
   transform: translate(-50%, -50%) scale(2.2);
-  transition: transform 0.1s ease;
 }
 
 @media (max-width: 768px) {
@@ -311,8 +333,14 @@ canvas {
   body {
     cursor: none;
   }
-  a, button, input, textarea, select {
-    cursor: none !important;
+  /* Real hand cursor on anything clickable — matches CLICKABLE_SELECTOR in
+     the cursor-follow effect, which fades the custom ring/dot out over the
+     same elements so only one cursor is ever visible at a time. */
+  a, button, [role="button"], .project-visual, .achievement-card {
+    cursor: pointer !important;
+  }
+  input, textarea, select {
+    cursor: text !important;
   }
 }
 
@@ -662,11 +690,17 @@ canvas {
   overflow-x: hidden;
 }
 
-section {
+.content-wrapper section {
   position: relative;
   padding: 100px var(--section-inline);
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper section {
+    padding: 56px var(--section-inline);
+  }
 }
 
 .section-label {
@@ -704,7 +738,7 @@ section {
 }
 
 /* ===== HERO SECTION ===== */
-.hero-section {
+.content-wrapper .hero-section {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -713,6 +747,13 @@ section {
   text-align: center;
   padding-top: 100px;
   padding-bottom: 60px;
+  /* Full-bleed: the hero's vanta/grid background layers are absolute children
+     of this section, so it must span the whole viewport width, not the
+     1280px reading-width cap from the generic `.content-wrapper section`
+     rule. `.hero-text` below carries its own max-width for the readable
+     content. */
+  max-width: none;
+  margin: 0;
   position: relative;
   overflow: hidden;
 }
@@ -1324,16 +1365,18 @@ section {
 }
 
 /* ===== PROJECTS SECTION (PINNED NORMAL SCROLL TO HORIZONTAL) ===== */
-.projects-section-pinned {
+.content-wrapper .projects-section-pinned {
   position: relative;
   width: 100%;
+  max-width: none;
+  margin: 0;
   padding-top: 24px;
   padding-bottom: 24px;
 }
 
 .projects-inner-wrap {
   width: 100%;
-  max-width: 1300px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 var(--section-inline);
 }
@@ -1365,107 +1408,6 @@ section {
   }
 }
 
-.projects-header-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.projects-scroll-nav-bar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.projects-scroll-guide {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: hsl(var(--text-muted));
-  letter-spacing: 0.06em;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: hsl(var(--bg-surface) / 0.6);
-  border: 1px solid hsl(var(--border-line) / 0.5);
-}
-
-.projects-nav-arrows {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.projects-nav-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: hsl(var(--bg-surface) / 0.8);
-  border: 1px solid hsl(var(--border-line) / 0.6);
-  color: hsl(var(--text-primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.projects-nav-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, hsl(var(--accent-ice)), hsl(var(--accent-mint)));
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px hsl(var(--accent-ice) / 0.35);
-  transform: scale(1.05);
-}
-
-.projects-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.projects-filter-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.projects-filter-btn {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid hsl(var(--border-line) / 0.5);
-  background: hsl(var(--bg-surface) / 0.6);
-  color: hsl(var(--text-muted));
-  cursor: pointer;
-  transition: all 0.2s;
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.projects-filter-btn:hover {
-  color: hsl(var(--text-primary));
-  border-color: hsl(var(--accent-ice) / 0.5);
-}
-
-.projects-filter-btn.active {
-  background: linear-gradient(135deg, hsl(var(--accent-ice)) 0%, hsl(var(--accent-mint)) 50%, hsl(var(--accent-amber)) 100%);
-  color: #ffffff;
-  font-weight: 700;
-  border-color: transparent;
-  box-shadow: 0 4px 14px hsl(var(--accent-ice) / 0.3);
-}
 
 .project-card {
   background: hsl(var(--bg-surface) / 0.7);
