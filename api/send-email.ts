@@ -49,9 +49,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: `Portfolio Contact Form <${fromEmail}>`,
+      from: `Portfolio Contact From <${fromEmail}>`,
       to: toEmail,
-      subject: `[Portfolio Contact] ${subject} - from ${name}`,
+      subject: `${subject} - from ${name}`,
       reply_to: email,
       html: `
         <div style="background-color: #0d1117; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; min-height: 100%;">
