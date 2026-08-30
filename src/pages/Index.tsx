@@ -1081,9 +1081,9 @@ export default function Index() {
       form.reset();
       toast.success("Message sent successfully!");
       setTimeout(() => setFormSent(false), 5000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to send email:", err);
-      const errorMsg = err.message || "Failed to send message. Please check your network and try again.";
+      const errorMsg = err instanceof Error ? err.message : "Failed to send message. Please check your network and try again.";
       setSubmitError(errorMsg);
       toast.error(errorMsg);
     } finally {
