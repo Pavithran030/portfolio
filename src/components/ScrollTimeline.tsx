@@ -27,53 +27,49 @@ function TimelineCard({ item, index, totalItems }: { item: TimelineCardData; ind
 
   return (
     <div className="scroll-timeline-item" ref={ref}>
-      {/* Connector dot */}
-      <motion.div
-        className="timeline-dot"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      >
+      {/* Connector dot container (guarantees exact geometrical centering) */}
+      <div className="timeline-dot-container">
         <motion.div
-          className="timeline-dot-ping"
-          initial={{ scale: 1, opacity: 0.6 }}
-          animate={isInView ? { scale: 2.5, opacity: 0 } : { scale: 1, opacity: 0.6 }}
-          transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
-        />
-      </motion.div>
+          className="timeline-dot"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="timeline-dot-ping"
+            initial={{ scale: 1, opacity: 0.6 }}
+            animate={isInView ? { scale: 2.5, opacity: 0 } : { scale: 1, opacity: 0.6 }}
+            transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
+          />
+        </motion.div>
+      </div>
 
       {/* Card */}
       <motion.div
         className={`timeline-card ${isLeft ? "timeline-card--left" : "timeline-card--right"}`}
         initial={{ 
           opacity: 0, 
-          x: isLeft ? -60 : 60, 
-          y: 30,
-          rotateY: isLeft ? -8 : 8,
-          scale: 0.92 
+          y: 28,
+          scale: 0.94 
         }}
         animate={isInView ? { 
           opacity: 1, 
-          x: 0, 
-          y: 0,
-          rotateY: 0,
+          y: 0, 
           scale: 1 
         } : { 
           opacity: 0, 
-          x: isLeft ? -60 : 60, 
-          y: 30,
-          rotateY: isLeft ? -8 : 8,
-          scale: 0.92 
+          y: 28,
+          scale: 0.94 
         }}
         transition={{ 
-          duration: 0.8, 
+          duration: 0.7, 
           delay: 0.1, 
           ease: [0.16, 1, 0.3, 1] 
         }}
         whileHover={{ 
-          y: -6, 
-          scale: 1.02,
-          transition: { duration: 0.3 } 
+          y: -5, 
+          scale: 1.015,
+          transition: { duration: 0.25 } 
         }}
       >
         <div className="timeline-card-glow" />

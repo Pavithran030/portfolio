@@ -27,9 +27,6 @@ import {
   Briefcase,
   Layers,
   Cpu,
-  ChevronLeft,
-  ChevronRight,
-  SlidersHorizontal,
   ArrowRight,
 } from "lucide-react";
 import Lenis from "lenis";
@@ -238,7 +235,7 @@ Key Architectural Capabilities:
 ];
 
 const ACHIEVEMENTS_STATS = [
-  { value: 140, suffix: "+", label: "LeetCode Solved" },
+  { value: 200, suffix: "+", label: "LeetCode Solved" },
   { value: 3, suffix: "+", label: "Internships Completed" },
   { value: 11, suffix: "", label: "Verified Credentials" },
   { value: 5, suffix: "+", label: "AI & ML Projects" },
@@ -382,30 +379,30 @@ const EXPERIENCE = [
 const EDUCATION = [
   {
     initial: "K",
-    degree: "B.E. — Artificial Intelligence & Data Science / Machine Learning",
-    institution: "K.S.Rangasamy College of Technology",
-    year: "2022 – 2026",
-    gpa: "7.73 CGPA",
+    degree: "B.E. CSE(AI & ML)",
+    institution: "K.S. Rangasamy College of Technology, Tiruchengode",
+    year: "2023 — 2027",
+    gpa: "CGPA: 8.95 (upto 6th sem)",
     status: "pursuing",
-    tags: ["Machine Learning", "Deep Learning", "Data Structures", "Computer Vision", "DBMS"],
+    tags: ["Machine Learning", "Deep Learning", "Computer Vision", "NLP"],
   },
   {
     initial: "S",
-    degree: "Higher Secondary Certificate (HSC)",
-    institution: "Spk Matriculation Higher Secondary School",
-    year: "2021 – 2022",
-    gpa: "84.5%",
+    degree: "HSC (Higher Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021 — 2023",
+    gpa: "90%",
     status: "completed",
-    tags: ["Computer Science", "Mathematics", "Physics", "Chemistry"],
+    tags: ["Physics", "Chemistry", "Mathematics", "Computer Science"],
   },
   {
     initial: "S",
-    degree: "Secondary School Leaving Certificate (SSLC)",
-    institution: "Spk Matriculation Higher Secondary School",
-    year: "2019 – 2020",
-    gpa: "75.2%",
+    degree: "SSLC (Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021",
+    gpa: "100%",
     status: "completed",
-    tags: ["Mathematics", "Science", "English"],
+    tags: ["Science", "Mathematics", "English", "Tamil"],
   },
 ];
 
@@ -415,7 +412,7 @@ const SOCIAL_ICONS = [
   { icon: "fa-solid fa-code", url: "https://codolio.com/profile/Pavithran030", tooltip: "Codolio" },
 ];
 
-const NAVBAR_HEIGHT = 80;
+const NAVBAR_HEIGHT = 72;
 
 type VantaEffectInstance = {
   destroy?: () => void;
@@ -475,20 +472,9 @@ export default function Index() {
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
   
-  // Interactive filters
-  const [projectCategory, setProjectCategory] = useState<string>("ALL");
-  
-  // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally until end)
+  // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
   const projectsScrollRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  const handleScrollProjects = (dir: "left" | "right") => {
-    const el = projectsScrollRef.current;
-    if (!el) return;
-    const scrollAmount = Math.max(340, el.clientWidth * 0.75);
-    el.scrollBy({ left: dir === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
-  };
   
   // Contact & feedback
   const [copiedEmail, setCopiedEmail] = useState(false);
@@ -623,6 +609,7 @@ export default function Index() {
 
     lenis.on("scroll", () => {
       ScrollTrigger.update();
+      window.dispatchEvent(new Event("scroll"));
     });
 
     const raf = (time: number) => {
@@ -637,15 +624,56 @@ export default function Index() {
     };
   }, [loaded, revealGone]);
 
-  // ===== DESKTOP CURSOR FOLLOW =====
+  // ===== APPLE-STYLE FLUID CURSOR FOLLOW & INTERACTIVE HOVER =====
   useEffect(() => {
     if (!loaded || !revealGone || window.innerWidth <= 768) return;
+
+    let isHovering = false;
+    let isTextHover = false;
 
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
       if (cursorDotRef.current) {
         cursorDotRef.current.style.left = `${e.clientX}px`;
         cursorDotRef.current.style.top = `${e.clientY}px`;
+      }
+      if (cursorRingRef.current?.classList.contains("hidden")) {
+        cursorRingRef.current.classList.remove("hidden");
+        cursorDotRef.current?.classList.remove("hidden");
+      }
+    };
+
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const interactiveEl = target.closest(
+        "a, button, [role='button'], input, textarea, select, .project-card, .achievement-card, .skill-card, .nav-link, .nav-btn, .timeline-card, .timeline-dot, .filter-chip, .badge, .project-links a, .project-links button, [data-interactive='true'], [onclick], .copy-btn, .btn, .social-pill, .back-to-top"
+      );
+
+      const textEl = target.closest("input[type='text'], input[type='email'], textarea");
+
+      if (textEl) {
+        isTextHover = true;
+        isHovering = false;
+        cursorRingRef.current?.classList.add("text-hover");
+        cursorDotRef.current?.classList.add("text-hover");
+        cursorRingRef.current?.classList.remove("hovering");
+        cursorDotRef.current?.classList.remove("hovering");
+      } else if (interactiveEl) {
+        isHovering = true;
+        isTextHover = false;
+        cursorRingRef.current?.classList.add("hovering");
+        cursorDotRef.current?.classList.add("hovering");
+        cursorRingRef.current?.classList.remove("text-hover");
+        cursorDotRef.current?.classList.remove("text-hover");
+      } else {
+        if (isHovering || isTextHover) {
+          isHovering = false;
+          isTextHover = false;
+          cursorRingRef.current?.classList.remove("hovering", "text-hover");
+          cursorDotRef.current?.classList.remove("hovering", "text-hover");
+        }
       }
     };
 
@@ -659,14 +687,28 @@ export default function Index() {
       cursorDotRef.current?.classList.remove("clicking");
     };
 
-    window.addEventListener("mousemove", onMouseMove);
+    const onMouseLeave = () => {
+      cursorRingRef.current?.classList.add("hidden");
+      cursorDotRef.current?.classList.add("hidden");
+    };
+
+    const onMouseEnter = () => {
+      cursorRingRef.current?.classList.remove("hidden");
+      cursorDotRef.current?.classList.remove("hidden");
+    };
+
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mouseover", onMouseOver, { passive: true });
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mouseleave", onMouseLeave);
+    document.addEventListener("mouseenter", onMouseEnter);
 
     let rafId: number;
     const updateRing = () => {
-      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.15;
-      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.15;
+      // Smooth Apple-like inertial damping
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.22;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.22;
       if (cursorRingRef.current) {
         cursorRingRef.current.style.left = `${ringPos.current.x}px`;
         cursorRingRef.current.style.top = `${ringPos.current.y}px`;
@@ -677,32 +719,69 @@ export default function Index() {
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseover", onMouseOver);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mouseleave", onMouseLeave);
+      document.removeEventListener("mouseenter", onMouseEnter);
       cancelAnimationFrame(rafId);
     };
   }, [loaded, revealGone]);
 
-  // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION =====
+  // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION & SECTION MAP =====
   useEffect(() => {
+    const bgLayer = document.querySelector(".bg-transition-layer") as HTMLElement | null;
+
     const onScroll = () => {
       const y = window.scrollY;
-      setNavScrolled(y > 50);
-      setShowBackTop(y > 400);
+      setNavScrolled(y > 40);
+      setShowBackTop(y > 360);
 
-      // Active section detection
-      const sections = NAV_LINKS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-      const scrollPos = y + 180;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const sec = sections[i];
-        if (sec && sec.offsetTop <= scrollPos) {
-          setActiveNav(sec.id);
-          break;
+      // Section Background Color Mapping
+      if (bgLayer) {
+        for (let i = SECTION_BG_COLORS.length - 1; i >= 0; i--) {
+          const item = SECTION_BG_COLORS[i];
+          const el = document.querySelector(item.section) as HTMLElement | null;
+          if (el) {
+            const top = el.getBoundingClientRect().top + y;
+            if (top <= y + window.innerHeight * 0.45) {
+              bgLayer.style.backgroundColor = item.color;
+              break;
+            }
+          }
+        }
+      }
+
+      // Check if user has reached bottom of document (activates contact)
+      const isBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 70;
+      if (isBottom) {
+        setActiveNav("contact");
+        return;
+      }
+
+      // Check if user is at top of document (activates home)
+      if (y < 100) {
+        setActiveNav("home");
+        return;
+      }
+
+      // Accurate active section detection using exact getBoundingClientRect offsets
+      const scrollPos = y + NAVBAR_HEIGHT + 80;
+      for (let i = NAV_LINKS.length - 1; i >= 0; i--) {
+        const id = NAV_LINKS[i];
+        const sec = document.getElementById(id);
+        if (sec) {
+          const top = sec.getBoundingClientRect().top + y;
+          if (top <= scrollPos) {
+            setActiveNav(id);
+            break;
+          }
         }
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -717,7 +796,8 @@ export default function Index() {
   const scrollToSection = useCallback((id: string, smooth = true) => {
     const section = document.getElementById(id);
     if (!section) return;
-    const offset = id === "home" ? 0 : NAVBAR_HEIGHT;
+    setActiveNav(id);
+    const offset = id === "home" ? 0 : NAVBAR_HEIGHT + 12;
     const top = Math.max(section.getBoundingClientRect().top + window.scrollY - offset, 0);
     window.history.replaceState(null, "", id === "home" ? window.location.pathname : `#${id}`);
     if (lenisRef.current && smooth) {
@@ -728,76 +808,89 @@ export default function Index() {
     setMobileMenuOpen(false);
   }, []);
 
-  // Filtered Projects
-  const filteredProjects = useMemo(() => {
-    if (projectCategory === "ALL") return PROJECTS;
-    return PROJECTS.filter((p) => p.category.toUpperCase().includes(projectCategory.toUpperCase()));
-  }, [projectCategory]);
+  // Hash Navigation Handler on first load
+  useEffect(() => {
+    if (!loaded || !revealGone) return;
+    const hash = window.location.hash.replace("#", "");
+    if (hash && NAV_LINKS.includes(hash)) {
+      setTimeout(() => {
+        scrollToSection(hash, true);
+      }, 200);
+    }
+  }, [loaded, revealGone, scrollToSection]);
 
-  // ===== PINNED NORMAL SCROLL TO HORIZONTAL TRANSLATION FOR PROJECTS =====
+  // ===== PROJECTS HORIZONTAL SCROLL (desktop only) =====
   useEffect(() => {
     if (!loaded || !revealGone) return;
 
-    const container = projectsContainerRef.current;
-    const track = projectsScrollRef.current;
-    if (!container || !track) return;
+    let ctx: gsap.Context | null = null;
 
-    // Small delay to ensure layout measurements are exact after render
-    const timer = setTimeout(() => {
-      const getScrollDistance = () => {
-        return Math.max(0, track.scrollWidth - track.clientWidth);
-      };
+    const setupProjectsScroll = () => {
+      ctx?.revert();
 
-      let ctx: gsap.Context | null = null;
+      // ---- PROJECTS HORIZONTAL SCROLL (desktop only) ----
+      const isMobile = window.innerWidth <= 768;
+      const projectsTrack = document.querySelector(".projects-track") as HTMLElement | null;
+      const projectsSection = document.getElementById("projects");
+      if (projectsTrack && projectsSection && !isMobile) {
+        const projectsWrapper = projectsSection.querySelector(".projects-pin-wrapper") as HTMLElement | null;
+        if (projectsWrapper) {
+          // The wrapper has horizontal padding, so clientWidth alone overestimates available track viewport.
+          // Use both last-card alignment and scrollWidth fallback for reliability across layout changes.
+          const wrapperStyles = window.getComputedStyle(projectsWrapper);
+          const padLeft = parseFloat(wrapperStyles.paddingLeft) || 0;
+          const padRight = parseFloat(wrapperStyles.paddingRight) || 0;
+          const trackViewportWidth = projectsWrapper.clientWidth - padLeft - padRight;
+          const cards = projectsTrack.querySelectorAll<HTMLElement>(".project-card");
+          const lastCard = cards[cards.length - 1];
+          const byTrackWidth = Math.max(projectsTrack.scrollWidth - trackViewportWidth, 0);
+          const byLastCard = lastCard
+            ? Math.max(lastCard.offsetLeft + lastCard.offsetWidth - trackViewportWidth, 0)
+            : 0;
+          const translateDistance = Math.max(byTrackWidth, byLastCard);
 
-      if (window.innerWidth > 768) {
-        // Desktop / Laptop: Pin the section and map vertical page scroll to horizontal travel
-        const scrollDistance = getScrollDistance();
-        if (scrollDistance > 20) {
-          ctx = gsap.context(() => {
-            gsap.to(track, {
-              x: () => -scrollDistance,
-              ease: "none",
-              scrollTrigger: {
-                trigger: container,
-                pin: true,
-                start: "top top+=75",
-                end: () => `+=${scrollDistance + 150}`,
-                scrub: 0.8,
-                invalidateOnRefresh: true,
-                anticipatePin: 1,
-                onUpdate: (self) => {
-                  setScrollProgress(Math.round(self.progress * 100));
+          if (translateDistance > 0) {
+            ctx = gsap.context(() => {
+              gsap.to(projectsTrack, {
+                x: -translateDistance,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: projectsSection,
+                  start: "top top",
+                  end: () => `+=${translateDistance}`,
+                  scrub: true,
+                  pin: true,
+                  anticipatePin: 1,
+                  invalidateOnRefresh: true,
                 },
-              },
-            });
-          }, container);
-        } else {
-          setScrollProgress(100);
-        }
-      } else {
-        // Mobile / Small touch devices: smooth native scroll with live progress tracking
-        const onMobileScroll = () => {
-          const max = track.scrollWidth - track.clientWidth;
-          if (max > 0) {
-            setScrollProgress(Math.min(100, Math.max(0, (track.scrollLeft / max) * 100)));
+              });
+            }, projectsSection);
+
+            // Ensure trigger measurements are updated after timeline registration.
+            (ScrollTrigger as unknown as { refresh?: () => void }).refresh?.();
           }
-        };
-        track.addEventListener("scroll", onMobileScroll, { passive: true });
-        return () => track.removeEventListener("scroll", onMobileScroll);
+        }
+      } else if (projectsTrack) {
+        gsap.set(projectsTrack, { clearProps: "all" });
       }
 
       ScrollTrigger.refresh();
+    };
 
-      return () => {
-        ctx?.revert();
-      };
-    }, 150);
+    const timer = setTimeout(setupProjectsScroll, 150);
+
+    const onResize = () => {
+      setupProjectsScroll();
+    };
+
+    window.addEventListener("resize", onResize);
 
     return () => {
       clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+      ctx?.revert();
     };
-  }, [loaded, revealGone, filteredProjects]);
+  }, [loaded, revealGone]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1112,6 +1205,12 @@ export default function Index() {
               <span className="hero-subtitle-text hidden sm:inline">K.S.Rangasamy College of Technology</span>
             </div>
 
+            <div className="hero-role-tag">
+              <span className="hero-role-line"></span>
+              <h2 className="hero-role-label">Backend Developer & AI Engineer</h2>
+              <span className="hero-role-line"></span>
+            </div>
+
             <h1 className="hero-name">
               <span className="hero-name-first">PAVITHRAN</span>
               <span className="hero-name-last">
@@ -1119,12 +1218,6 @@ export default function Index() {
                 G
               </span>
             </h1>
-
-            <div className="hero-role-tag">
-              <span className="hero-role-line"></span>
-              <span className="hero-role-label">Backend Developer & AI Engineer</span>
-              <span className="hero-role-line"></span>
-            </div>
 
             <p className="hero-description">
               Crafting production-ready AI architectures, Agentic RAG engines, computer vision systems & automation workflows.
@@ -1303,7 +1396,7 @@ export default function Index() {
                 {[
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 5, suffix: "+", label: "Projects" },
-                  { val: 140, suffix: "+", label: "LeetCode" },
+                  { val: 200, suffix: "+", label: "LeetCode" },
                   { val: 11, suffix: "", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
@@ -1373,7 +1466,7 @@ export default function Index() {
 
         {/* ===== PROJECTS ===== */}
         <section id="projects" ref={projectsContainerRef} className="projects-section-pinned">
-          <div className="projects-inner-wrap">
+          <div className="projects-inner-wrap projects-pin-wrapper">
             <div className="projects-header-top">
               <div>
                 <span className="section-label">// 03. FEATURED WORK</span>
@@ -1381,63 +1474,35 @@ export default function Index() {
                   Featured <span className="accent">Projects</span>
                 </h2>
               </div>
-              
-              {/* Scroll Navigation Controls */}
-              <div className="projects-scroll-nav-bar">
-                <span className="projects-scroll-guide">
-                  <SlidersHorizontal size={13} className="text-emerald-400" />
-                  <span>Scroll Down to Slide Projects &rarr;</span>
+              <div className="projects-header-meta">
+                <span className="projects-count-badge">
+                  <span className="projects-count-dot"></span>
+                  {PROJECTS.length} PRODUCTION APPS
                 </span>
-                <div className="projects-nav-arrows">
-                  <button
-                    type="button"
-                    onClick={() => handleScrollProjects("left")}
-                    className="projects-nav-btn"
-                    aria-label="Scroll projects left"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleScrollProjects("right")}
-                    className="projects-nav-btn"
-                    aria-label="Scroll projects right"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
               </div>
             </div>
 
-            <div className="projects-filter-tabs">
-              {["ALL", "AI & ML", "AUTOMATION", "WEB APPS"].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => {
-                    setProjectCategory(cat);
-                    if (projectsScrollRef.current) {
-                      projectsScrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`projects-filter-btn ${projectCategory === cat ? "active" : ""}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Horizontal Scroll Track (pinned translation container) */}
+            {/* Horizontal Scroll Track on desktop / Clean vertical cards on mobile */}
             <div className="projects-viewport-mask">
               <div
                 ref={projectsScrollRef}
-                className="projects-horizontal-track"
+                className="projects-horizontal-track projects-track"
               >
-                {filteredProjects.map((p) => (
-                  <div
+                {PROJECTS.map((p, idx) => (
+                  <motion.div
                     className="project-card project-card-horizontal"
                     key={p.id}
+                    initial={{ opacity: 0, y: 32, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-30px", amount: 0.12 }}
+                    transition={{
+                      duration: 0.65,
+                      delay: Math.min(idx * 0.08, 0.25),
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    whileTap={{ scale: 0.985 }}
                   >
+                    <div className="project-card-glow" />
                     <div className="project-visual" onClick={() => setPopupProject(p)}>
                       <img src={p.image} alt={p.title} className="project-image" loading="lazy" />
                       <div className="project-image-overlay">
@@ -1456,37 +1521,25 @@ export default function Index() {
                         {p.tech.length > 4 && <span>+{p.tech.length - 4}</span>}
                       </div>
                       <div className="project-links">
-                        {p.demo ? (
+                        {p.demo && (
                           <a href={p.demo} target="_blank" rel="noopener noreferrer" className="project-link-demo">
-                            <ExternalLink size={13} /> DEMO
+                            <ExternalLink size={13} /> LIVE DEMO
                           </a>
-                        ) : (
-                          <button type="button" onClick={() => setPopupProject(p)} className="project-link-demo">
-                            DETAILS
-                          </button>
                         )}
                         {p.source ? (
                           <a href={p.source} target="_blank" rel="noopener noreferrer" className="project-link-code">
-                            <Github size={13} /> CODE
+                            <Code2 size={13} /> SOURCE CODE
                           </a>
                         ) : (
                           <button type="button" onClick={() => setPopupProject(p)} className="project-link-code">
-                            DETAILS
+                            <ExternalLink size={13} /> DETAILS
                           </button>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-
-            {/* Scroll Progress Bar Indicator */}
-            <div className="projects-scroll-progress-container">
-              <div
-                className="projects-scroll-progress-thumb"
-                style={{ width: `${Math.max(16, scrollProgress)}%` }}
-              ></div>
             </div>
           </div>
         </section>
@@ -1584,89 +1637,91 @@ export default function Index() {
 
         {/* ===== CONTACT ===== */}
         <MotionSection id="contact" className="contact-section">
-          <span className="section-label">// 07. CONNECT WITH ME</span>
-          <h2 className="section-heading">
-            Get in <span className="accent">Touch</span>
-          </h2>
-          <div className="contact-grid">
-            <MotionItem className="contact-info" direction="left">
-              <h3>Let's build something extraordinary</h3>
-              <p className="contact-desc">
-                I am actively seeking AI/ML engineering roles, software development opportunities, and exciting collaborative projects.
-                Feel free to drop a message or reach out directly.
-              </p>
-              <div className="contact-links">
-                {[
-                  {
-                    icon: "fa-solid fa-envelope",
-                    label: "Email",
-                    url: "techpavithran18@gmail.com",
-                    href: "mailto:techpavithran18@gmail.com",
-                  },
-                  {
-                    icon: "fa-brands fa-github",
-                    label: "GitHub",
-                    url: "github.com/Pavithran030",
-                    href: "https://github.com/Pavithran030",
-                  },
-                  {
-                    icon: "fa-brands fa-linkedin",
-                    label: "LinkedIn",
-                    url: "linkedin.com/in/pavithran030",
-                    href: "https://www.linkedin.com/in/pavithran030",
-                  },
-                  { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
-                ].map((l, i) => (
-                  <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
-                    <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
-                      <i className={l.icon}></i>
-                      <div>
-                        <span className="link-label">{l.label}</span>
-                        <span className="link-url">{l.url}</span>
-                      </div>
-                    </a>
-                  </MotionItem>
-                ))}
-              </div>
-            </MotionItem>
+          <div className="contact-content-wrap">
+            <span className="section-label">// 07. CONNECT WITH ME</span>
+            <h2 className="section-heading">
+              Get in <span className="accent">Touch</span>
+            </h2>
+            <div className="contact-grid">
+              <MotionItem className="contact-info" direction="left">
+                <h3>Let's build something extraordinary</h3>
+                <p className="contact-desc">
+                  I am actively seeking AI/ML engineering roles, software development opportunities, and exciting collaborative projects.
+                  Feel free to drop a message or reach out directly.
+                </p>
+                <div className="contact-links">
+                  {[
+                    {
+                      icon: "fa-solid fa-envelope",
+                      label: "Email",
+                      url: "techpavithran18@gmail.com",
+                      href: "mailto:techpavithran18@gmail.com",
+                    },
+                    {
+                      icon: "fa-brands fa-github",
+                      label: "GitHub",
+                      url: "github.com/Pavithran030",
+                      href: "https://github.com/Pavithran030",
+                    },
+                    {
+                      icon: "fa-brands fa-linkedin",
+                      label: "LinkedIn",
+                      url: "linkedin.com/in/pavithran030",
+                      href: "https://www.linkedin.com/in/pavithran030",
+                    },
+                    { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
+                  ].map((l, i) => (
+                    <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
+                      <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
+                        <i className={l.icon}></i>
+                        <div>
+                          <span className="link-label">{l.label}</span>
+                          <span className="link-url">{l.url}</span>
+                        </div>
+                      </a>
+                    </MotionItem>
+                  ))}
+                </div>
+              </MotionItem>
 
-            <MotionItem direction="right" delay={0.15}>
-              <form className="contact-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="contact-name">Name</label>
-                  <input id="contact-name" type="text" name="name" required placeholder="Your Name" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="contact-email">Email</label>
-                  <input id="contact-email" type="email" name="email" required placeholder="your.email@example.com" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="contact-subject">Subject</label>
-                  <input id="contact-subject" type="text" name="subject" required placeholder="AI/ML Opportunity / Project Collaboration" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="contact-message">Message</label>
-                  <textarea id="contact-message" name="message" required placeholder="Hi Pavithran, I'd like to talk about..." rows={4}></textarea>
-                </div>
-                <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""}`}>
-                  {isSubmitting ? "Sending Message..." : formSent ? "✓ Message Sent Successfully" : "Send Message"}
-                </button>
-                {submitError && (
-                  <p className="form-error-msg">
-                    <span>❌</span> {submitError}
-                  </p>
-                )}
-              </form>
-            </MotionItem>
+              <MotionItem direction="right" delay={0.15}>
+                <form className="contact-form" onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label htmlFor="contact-name">Name</label>
+                    <input id="contact-name" type="text" name="name" required placeholder="Your Name" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-email">Email</label>
+                    <input id="contact-email" type="email" name="email" required placeholder="your.email@example.com" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-subject">Subject</label>
+                    <input id="contact-subject" type="text" name="subject" required placeholder="AI/ML Opportunity / Project Collaboration" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-message">Message</label>
+                    <textarea id="contact-message" name="message" required placeholder="Hi Pavithran, I'd like to talk about..." rows={4}></textarea>
+                  </div>
+                  <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""}`}>
+                    {isSubmitting ? "Sending Message..." : formSent ? "✓ Message Sent Successfully" : "Send Message"}
+                  </button>
+                  {submitError && (
+                    <p className="form-error-msg">
+                      <span>❌</span> {submitError}
+                    </p>
+                  )}
+                </form>
+              </MotionItem>
+            </div>
           </div>
+
+          {/* ===== FOOTER ===== */}
+          <footer className="footer">
+            <div className="footer-copy">
+              © {new Date().getFullYear()} Pavithran G. Designed with precision & modern aesthetics.
+            </div>
+          </footer>
         </MotionSection>
-
-        {/* ===== FOOTER ===== */}
-        <footer className="footer">
-          <div className="footer-copy">
-            © {new Date().getFullYear()} Pavithran G. Designed with precision & modern aesthetics.
-          </div>
-        </footer>
       </div>
 
       {/* PROJECT DETAILS POPUP MODAL */}
