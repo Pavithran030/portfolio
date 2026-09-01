@@ -118,8 +118,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(200).json({ success: true, data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Serverless function error:", error);
-    return res.status(500).json({ error: error.message || "Internal Server Error" });
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
+    return res.status(500).json({ error: errorMessage });
   }
 }

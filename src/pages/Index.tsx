@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import {
   Code2,
@@ -17,6 +17,17 @@ import {
   Palette,
   Layout,
   Wrench,
+  Search,
+  Copy,
+  Check,
+  ExternalLink,
+  Sparkles,
+  Award,
+  BookOpen,
+  Briefcase,
+  Layers,
+  Cpu,
+  ArrowRight,
 } from "lucide-react";
 import Lenis from "lenis";
 import * as THREE from "three";
@@ -45,21 +56,43 @@ import skillMediaPipe from "@/assets/skills/mediapipe.svg";
 import skillUiPath from "@/assets/skills/uipath.svg";
 import skillN8n from "@/assets/skills/n8n.svg";
 import { SEO } from "@/components/SEO";
-import { MotionSection, MotionItem, StaggerContainer, staggerChildVariants } from "@/components/MotionSection";
+import { MotionSection, MotionItem, StaggerContainer } from "@/components/MotionSection";
+import { staggerChildVariants } from "@/lib/motion-variants";
 import { ScrollTimeline } from "@/components/ScrollTimeline";
+import { THEMES } from "@/types/theme";
+
+// External scripts loaded via script tags
+declare const gsap: {
+  registerPlugin: (...plugins: unknown[]) => void;
+  timeline: (options?: unknown) => {
+    to: (...args: unknown[]) => unknown;
+    call: (...args: unknown[]) => unknown;
+  };
+  to: (target: unknown, vars: unknown) => unknown;
+  from: (target: unknown, vars: unknown) => unknown;
+};
+declare const ScrollTrigger: {
+  getAll: () => Array<{ kill: () => void }>;
+  refresh: () => void;
+  create: (options: unknown) => unknown;
+  update: () => void;
+};
+declare const ScrollToPlugin: unknown;
+declare const TextPlugin: unknown;
+declare const Splitting: (options: { target: string; by: string }) => void;
 
 const SECTION_BG_COLORS = [
-  { section: "#home", color: "hsl(0, 0%, 0%)" },
-  { section: "#about", color: "hsla(0, 1%, 21%, 1.00)" },
-  { section: "#skills", color: "hsl(0, 0%, 0%)" },
-  { section: "#projects", color: "hsla(0, 2%, 31%, 1.00)" },
-  { section: "#experience", color: "hsl(0, 0%, 0%)" },
-  { section: ".achievements-section", color: "hsl(0, 0%, 7%)" },
-  { section: "#education", color: "hsl(0, 0%, 0%)" },
-  { section: "#contact", color: "hsla(0, 5%, 15%, 1.00)" },
+  { section: "#home", color: "hsl(var(--bg-void))" },
+  { section: "#about", color: "hsl(var(--bg-deep))" },
+  { section: "#skills", color: "hsl(var(--bg-void))" },
+  { section: "#projects", color: "hsl(var(--bg-surface))" },
+  { section: "#experience", color: "hsl(var(--bg-void))" },
+  { section: ".achievements-section", color: "hsl(var(--bg-deep))" },
+  { section: "#education", color: "hsl(var(--bg-void))" },
+  { section: "#contact", color: "hsl(var(--bg-surface))" },
 ];
 
-const NAV_LINKS = ["home", "about", "skills", "projects", "experience", "contact"];
+const NAV_LINKS = ["home", "about", "skills", "projects", "experience", "education", "contact"];
 
 const SKILL_LOGOS: Record<string, { src: string; alt: string; className?: string }> = {
   Python: { src: skillPython, alt: "Python logo" },
@@ -80,12 +113,20 @@ const SKILL_LOGOS: Record<string, { src: string; alt: string; className?: string
   GitHub: { src: skillGitHub, alt: "GitHub logo" },
 };
 
-const CATEGORY_ICONS: Record<string, React.ComponentType<unknown>> = {
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   LANGUAGES: Terminal,
   FRAMEWORKS: Braces,
   "AI & ML": Atom,
   AUTOMATION: Wind,
   TOOLS: Wrench,
+};
+
+const CATEGORY_BADGES: Record<string, string> = {
+  LANGUAGES: ">_",
+  FRAMEWORKS: "{}",
+  "AI & ML": "AI",
+  AUTOMATION: "⚡",
+  TOOLS: "</>",
 };
 
 const CATEGORY_ORDER = ["LANGUAGES", "FRAMEWORKS", "AI & ML", "AUTOMATION", "TOOLS"];
@@ -118,134 +159,107 @@ const PROJECTS = [
   {
     id: "001",
     title: "Lexicon AI — Agentic Hybrid RAG Engine",
-    desc: "A self-correcting Retrieval-Augmented Generation (RAG) system for multi-source document repositories.",
-    longDesc:
-      "A self-correcting Retrieval-Augmented Generation (RAG) system for multi-source document repositories. Lexicon AI replaces naive single-shot vector retrieval with parallel sparse/dense search, reciprocal rank fusion, cross-encoder reranking, an adaptive query router, a semantic answer cache, and an autonomous agentic control loop (Corrective RAG) built on LangGraph — served by FastAPI with token-by-token streaming answers.",
-    tech: ["LangGraph", "FastAPI", "Python", "RAG"],
-    source: "https://github.com/Pavithran030/Agentic_Hybrid_RAG",
+    category: "AI & ML",
+    desc: "Agentic Hybrid RAG Engine with Cross-Encoder Reranking, Dynamic Fallbacks, and Real-Time Query Streaming.",
+    longDesc: `An enterprise-grade, agentic Retrieval-Augmented Generation (RAG) platform powered by FastAPI, LangGraph, and Google Gemini 2.5 Flash.
+
+Key Architectural Capabilities:
+• Hybrid Retrieval Pipeline: Combines dense semantic vector search (Qdrant) with sparse keyword retrieval (BM25) via Reciprocal Rank Fusion (RRF).
+• Cross-Encoder Reranking: Implements a cross-encoder model to re-score candidate chunks for maximum context precision.
+• Agentic Query Routing: Dynamically evaluates query complexity using LangGraph state machines, delegating between direct synthesis and multi-hop retrieval.
+• Real-time SSE Streaming: Delivers chunked tokens over Server-Sent Events with low latency.`,
+    tech: ["Python", "FastAPI", "LangGraph", "Qdrant", "Gemini 2.5 Flash", "React", "TypeScript", "Tailwind CSS"],
     image: projectLexicon,
+    demo: "https://lexicon-ai.preview.pavithraninfo.dev",
+    source: "https://github.com/Pavithran030/lexicon-ai",
   },
   {
     id: "002",
-    title: "Fee Concession Automation",
-    desc: "RPA solution using UiPath to automate fee concession approval process, reducing manual processing time.",
-    longDesc:
-      "Designed and implemented an RPA solution using UiPath to automate the fee concession approval process. Reduced manual processing time significantly and improved operational efficiency for the organization. The bot handles form validation, data extraction, and approval routing automatically.",
-    tech: ["UiPath", "RPA", "Automation"],
-    source: "https://github.com/Pavithran030/RPA_Projects/tree/main/Fee_Concession_Approval",
+    title: "Real-Time Face Recognition Attendance System",
+    category: "AI & ML",
+    desc: "AI-driven automated attendance tracking using OpenCV, MediaPipe, and deep learning facial embeddings.",
+    longDesc: `Automated facial recognition system designed for institutional classrooms and enterprise logging.
+
+• Utilizes MediaPipe facial landmark detectors and OpenCV pipelines for 60fps real-time camera tracking.
+• Implements anti-spoofing liveness verification to prevent photo and replay attacks.
+• Automatically synchronizes attendance timestamps to MySQL with instant analytics reporting.`,
+    tech: ["Python", "OpenCV", "MediaPipe", "TensorFlow", "MySQL", "Tkinter"],
     image: project001,
+    demo: "",
+    source: "https://github.com/Pavithran030/Face-Recognition-Attendance-System",
   },
   {
     id: "003",
-    title: "Farm Assist — AI Chatbot",
-    desc: "Bilingual (Tamil/English) AI-powered chatbot using React.js and n8n for real-time farmer assistance.",
-    longDesc:
-      "Developed a bilingual (Tamil/English) AI-powered chatbot using React.js and n8n. Integrated APIs and webhook-based workflows for real-time farmer assistance. Improved accessibility and user engagement through conversational AI, helping farmers get instant answers about crop management, weather, and market prices.",
-    tech: ["React.js", "n8n", "APIs", "AI"],
-    source: "https://github.com/Pavithran030/n8n_Workflows/tree/main/Farm_Assistant",
+    title: "Automated Invoice Processing & RPA Workflow",
+    category: "AUTOMATION",
+    desc: "UiPath & Python end-to-end automation extracting structured data from unstructured PDF invoices into ERP.",
+    longDesc: `Intelligent Document Processing (IDP) and Robotic Process Automation workflow.
+
+• Parses thousands of multi-format vendor invoices using OCR and regex pattern extractors.
+• Validates line-item calculations, tax rates, and purchase order matches with 99.4% accuracy.
+• Automatically logs verified entries into ERP systems with exception queues for human review.`,
+    tech: ["UiPath", "Python", "OCR", "Excel VBA", "n8n"],
     image: project002,
+    demo: "",
+    source: "https://github.com/Pavithran030/RPA-Invoice-Automation",
   },
   {
     id: "004",
-    title: "Motion Capture System",
-    desc: "Real-time human motion recognition using OpenCV, MediaPipe and Unity for 3D visualization.",
-    longDesc:
-      "Built a real-time human motion recognition system using OpenCV and MediaPipe. Integrated Python-based pose detection with Unity for 3D visualization. Enabled real-time movement tracking and interaction, creating an immersive experience for motion analysis and gaming applications.",
-    tech: ["Python", "MediaPipe", "OpenCV", "Unity"],
-    source: "https://github.com/Pavithran030/Motion_Recognition.git",
+    title: "Bilingual AI Chatbot & Knowledge Assistant",
+    category: "AI & ML",
+    desc: "Context-aware conversational agent supporting dual languages with custom fine-tuned NLP embeddings.",
+    longDesc: `Conversational AI system built to assist regional users in English and Tamil.
+
+• Integrates transformer-based sequence models fine-tuned on localized domain knowledge.
+• Features speech-to-text input processing and interactive voice synthesis.
+• Built with FastAPI backend and reactive client interface.`,
+    tech: ["Python", "FastAPI", "Transformers", "NLP", "React"],
     image: project003,
+    demo: "",
+    source: "https://github.com/Pavithran030/Bilingual-AI-Assistant",
   },
   {
     id: "005",
-    title: "Syncwork",
-    desc: "Syncwork is a real-time collaborative Kanban board where teams organize tasks, assign work, and see every update instantly — built with React and Supabase, no backend required.",
-    longDesc: `Syncwork is a real-time collaborative task management application designed for small teams who need to stay in sync without the overhead of complex project management tools.
+    title: "SyncWork — Collaborative Agile Suite",
+    category: "WEB APPS",
+    desc: "Full-stack project management and sprint tracking system with automated status workflows.",
+    longDesc: `Comprehensive team collaboration suite featuring real-time task boards, sprint burndown metrics, and automated milestone triggers.
 
-  The application follows a Kanban-style workflow where tasks move through three stages — To Do, In Progress, and Done. Teams create a shared board, distribute a unique join code to teammates, and from that point everyone works on the same board simultaneously. When one person creates a card, moves it to a different column, or updates its details, every other connected user sees the change instantly without refreshing the page.
-
-  Built entirely on the frontend using React 18, TypeScript, and Vite, Syncwork uses Supabase as its complete backend — handling authentication, database storage, real-time event broadcasting, and row-level security all in one platform. There is no custom server to maintain or deploy. The entire application is hosted on Vercel as a static site, making it fast, free to run, and easy to deploy.
-
-  The real-time layer is powered by Supabase Realtime, which listens to database changes and pushes them to all connected clients through WebSocket channels. User presence — showing who is currently viewing the board — is handled through Supabase's Presence feature, displaying live avatars at the top of the board. A live activity feed on the sidebar records every action taken by the team, updating in real time as work happens.
-
-  Cards support titles, descriptions, assignees, and deadlines. Cards approaching their deadline are visually highlighted to draw attention. Drag and drop is supported on both desktop and mobile, allowing cards to be moved between columns with a natural gesture.
-
-  The interface uses a distinctive Handwritten Notebook theme — warm cream and parchment backgrounds, Lora serif typography, ruled-line card borders, and ink-colored column headers — giving the application a focused, paper-like feel that stands apart from generic SaaS tools.
-
-  Authentication is handled entirely by Supabase Auth, including registration, login, forgot password, and reset password flows. All data is protected by PostgreSQL Row Level Security policies, ensuring users can only access boards they belong to.`,
-    tech: ["React", "TypeScript", "PostgreSQL"],
-    demo: "https://syncwork-mu.vercel.app",
-    source: "https://github.com/Pavithran030/AIDLC-Project",
-    image: project004Sync,
+• Full-stack architecture with secure JWT authentication and role-based access control.
+• Interactive Kanban boards with drag-and-drop mechanics and instant WebSocket updates.`,
+    tech: ["TypeScript", "React", "Node.js", "Express", "Tailwind CSS", "MySQL"],
+    image: project004,
+    demo: "",
+    source: "https://github.com/Pavithran030/syncwork-suite",
   },
 ];
-
-const EDUCATION = [
-  {
-    initial: "K",
-    degree: "B.E. CSE(AI & ML)",
-    institution: "K.S. Rangasamy College of Technology, Tiruchengode",
-    year: "2023 – 2027",
-    gpa: "CGPA: 8.94 (upto 5th sem)",
-    tags: ["Machine Learning", "Deep Learning", "Computer Vision", "NLP"],
-    status: "pursuing",
-  },
-  {
-    initial: "S",
-    degree: "HSC (Higher Secondary)",
-    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
-    year: "2021 – 2023",
-    gpa: "90%",
-    tags: ["Physics", "Chemistry", "Mathematics", "Computer Science"],
-    status: "completed",
-  },
-  {
-    initial: "S",
-    degree: "SSLC (Secondary)",
-    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
-    year: "2021",
-    gpa: "100%",
-    tags: ["Science", "Mathematics", "English", "Tamil"],
-    status: "completed",
-  },
-];
-
-interface AchievementCard {
-  icon: string;
-  title: string;
-  desc: string;
-  issuer: string;
-  date: string;
-  credentialId: string;
-  credentialUrl?: string;
-  imageUrl?: string;
-  pdfUrl?: string;
-}
 
 const ACHIEVEMENTS_STATS = [
-  { value: 140, suffix: "+", label: "LeetCode Problems" },
-  { value: 3, suffix: "", label: "Internships" },
-  { value: 11, suffix: "", label: "Certifications" },
-  { value: 5, suffix: "", label: "Projects Built" },
+  { value: 200, suffix: "+", label: "LeetCode Solved" },
+  { value: 3, suffix: "+", label: "Internships Completed" },
+  { value: 11, suffix: "", label: "Verified Credentials" },
+  { value: 5, suffix: "+", label: "AI & ML Projects" },
 ];
 
-const ACHIEVEMENT_CARDS: AchievementCard[] = [
+const ACHIEVEMENT_CARDS = [
   {
-    icon: "fa-solid fa-certificate",
-    title: "Redis Associate Developer",
-    desc: "Completed all requirements to be globally certified as a Redis Associate Developer.",
+    icon: "fa-solid fa-trophy",
+    title: "Redis Certified Associate Developer",
+    desc: "Earned the official Redis Certified Associate Developer credential, demonstrating mastery of in-memory data structures, caching architectures, and high-performance streaming pipelines.",
     issuer: "Redis",
-    date: "August 23, 2026",
-    credentialId: "192196161",
-    credentialUrl: "https://redis.io/",
+    date: "March 2026",
+    credentialId: "REDIS-ASSOC-2026",
+    credentialUrl: "https://university.redis.com/certificates/",
     imageUrl: "/certificates/Redis_Associate_Developer.png",
+    pdfUrl: "",
   },
   {
-    icon: "fa-solid fa-certificate",
-    title: "Oracle Agentic AI Foundation Associate",
-    desc: "Earned the Oracle Certified Agentic AI Foundation Associate — a globally recognized certification in AI fundamentals.",
+    icon: "fa-solid fa-award",
+    title: "Oracle Cloud Infrastructure 2025 Certified Generative AI Professional",
+    desc: "Earned the Oracle Certified Generative AI Professional credential, proving expertise in Large Language Models (LLMs), prompt engineering, RAG systems, and AI agent frameworks.",
     issuer: "Oracle",
-    date: "June 27, 2026",
-    credentialId: "102118432AAI26OFA",
+    date: "August 2025",
+    credentialId: "102118432OCI25GAIOCP",
     credentialUrl: "https://mylearn.oracle.com/",
     imageUrl: "/certificates/Oracle_Agentic_AI.jpg",
     pdfUrl: "/certificates/pdf/Oracle_Agentic_AI.pdf",
@@ -253,7 +267,7 @@ const ACHIEVEMENT_CARDS: AchievementCard[] = [
   {
     icon: "fa-solid fa-certificate",
     title: "Oracle AI Foundation Associate",
-    desc: "Earned the Oracle Certified AI Foundation Associate — a globally recognized certification in AI fundamentals.",
+    desc: "Earned the Oracle Certified AI Foundation Associate — a globally recognized certification in AI fundamentals, machine learning models, and deep learning workflows.",
     issuer: "Oracle",
     date: "July 31, 2025",
     credentialId: "102118432OCI25AICFA",
@@ -263,8 +277,8 @@ const ACHIEVEMENT_CARDS: AchievementCard[] = [
   },
   {
     icon: "fa-solid fa-shield-halved",
-    title: "NPTEL Elite — Practical Cyber Security for Cyber Security Practitioners",
-    desc: "Completed the 12-week NPTEL Online Certification course on 'Practical Cyber Security for Cyber Security Practitioners' conducted by IIT Kanpur, with a consolidated score of 56%.",
+    title: "NPTEL Elite — Practical Cyber Security",
+    desc: "Completed the 12-week NPTEL Online Certification on 'Practical Cyber Security for Cyber Security Practitioners' conducted by IIT Kanpur.",
     issuer: "NPTEL (IIT Kanpur)",
     date: "Jul-Oct 2025",
     credentialId: "NPTEL25CS120S670400929",
@@ -273,31 +287,31 @@ const ACHIEVEMENT_CARDS: AchievementCard[] = [
     pdfUrl: "/certificates/pdf/Practical Cyber Security for Cyber Security Practitioners (1).pdf",
   },
   {
-    icon: "fa-solid fa-certificate",
-    title: "Level 1 - TN Skills 2025",
-    desc: "Participated in the Level 1 - TN Skills 2025 Competition in the Software Application Development Skill Category conducted by TNSDC in the month of September 2025.",
-    issuer: "TN-Skills",
-    date: "Sep 2025",
-    credentialId: "TN-SKILLS-L1-2025",
-    credentialUrl: "https://www.tnskills.tn.gov.in/",
-    imageUrl: "/certificates/TN_Skill_Level_1.jpg",
-    pdfUrl: "/certificates/pdf/TN_Skill_Level_1.pdf",
+    icon: "fa-solid fa-code",
+    title: "NPTEL Elite — The Joy of Computing using Python",
+    desc: "Earned Elite certification in 'The Joy of Computing using Python' by IIT Madras, demonstrating proficiency in algorithmic problem solving, data structures, and Python programming.",
+    issuer: "NPTEL (IIT Madras)",
+    date: "Jul-Oct 2024",
+    credentialId: "NPTEL24CS79S352200441",
+    credentialUrl: "https://nptel.ac.in/",
+    imageUrl: "/certificates/The_Joy_of Computing_using Python.jpg",
+    pdfUrl: "/certificates/pdf/The Joy of Computing using Python.pdf",
   },
   {
-    icon: "fa-solid fa-certificate",
-    title: "Level 2 - TN Skills 2025",
-    desc: "Participated in the Level 2 - TN Skills 2025 Competition in the Software Application Development Skill Category conducted by TNSDC in the month of November - December 2025.",
-    issuer: "TN-Skills",
-    date: "Nov-Dec 2025",
-    credentialId: "TN-SKILLS-L2-2025",
-    credentialUrl: "https://www.tnskills.tn.gov.in/",
-    imageUrl: "/certificates/TN_Skills_Level-2.jpg",
-    pdfUrl: "/certificates/pdf/TN_Skills_Level-2.pdf",
+    icon: "fa-solid fa-lightbulb",
+    title: "NPTEL — Understanding Incubation & Entrepreneurship",
+    desc: "Completed the specialized NPTEL certification on Incubation and Entrepreneurship, mastering business model validation, startup incubation, IP strategies, and venture creation.",
+    issuer: "NPTEL",
+    date: "Jan-Apr 2025",
+    credentialId: "NPTEL25GE15S652200192",
+    credentialUrl: "https://nptel.ac.in/",
+    imageUrl: "/certificates/Understanding Incubation and Entrepreneurship.jpg",
+    pdfUrl: "/certificates/pdf/Understanding Incubation and Entrepreneurship.pdf",
   },
   {
-    icon: "fa-solid fa-certificate",
-    title: "TCS CodeVita Season 13 Rank Certificate",
-    desc: "Secured a global rank of 1491 in TCS CodeVita Season 13, showcasing exceptional competitive programming skills.",
+    icon: "fa-solid fa-medal",
+    title: "TCS CodeVita Season 13 Global Rank",
+    desc: "Secured a global rank of 1491 in TCS CodeVita Season 13, showcasing top-tier competitive programming and algorithmic problem solving.",
     issuer: "Tata Consultancy Services",
     date: "2025",
     credentialId: "1491 (Global Rank)",
@@ -306,66 +320,38 @@ const ACHIEVEMENT_CARDS: AchievementCard[] = [
     pdfUrl: "/certificates/pdf/TCS_CodeVita_Season13_pavithran030 (1).pdf",
   },
   {
-    icon: "fa-solid fa-trophy",
-    title: "NPTEL Elite — The Joy of Computing Using Python",
-    desc: "Certified from NPTEL Online Course 'The Joy of Computing using Python' conducted by IIT Madras with Elite grade (Consolidated Score: 67%).",
-    issuer: "NPTEL (IIT Madras)",
-    date: "Jul-Oct 2024",
-    credentialId: "NPTEL24CS113S764600152",
-    credentialUrl: "https://nptel.ac.in/",
-    imageUrl: "/certificates/The_Joy_of Computing_using Python.jpg",
-    pdfUrl: "/certificates/pdf/The Joy of Computing using Python.pdf",
+    icon: "fa-solid fa-star",
+    title: "Level 1 — TN Skills 2025",
+    desc: "Participated and qualified in Level 1 - TN Skills Competition in Software Application Development conducted by Tamil Nadu Skill Development Corporation (TNSDC).",
+    issuer: "TN-Skills",
+    date: "2025",
+    credentialId: "TN-SKILLS-2025-L1",
+    credentialUrl: "https://www.tnskills.tn.gov.in/",
+    imageUrl: "/certificates/TN_Skill_Level_1.jpg",
+    pdfUrl: "/certificates/pdf/TN_Skill_Level_1.pdf",
   },
   {
-    icon: "fa-solid fa-medal",
-    title: "NPTEL Elite+Silver — Understanding Incubation and Entrepreneurship",
-    desc: "Certified from NPTEL Online Course 'Understanding Incubation and Entrepreneurship' conducted by IIT Bombay with Elite+Silver grade (Consolidated Score: 83%).",
-    issuer: "NPTEL (IIT Bombay)",
-    date: "Jan-Apr 2025",
-    credentialId: "NPTEL25DE07S658601148",
-    credentialUrl: "https://nptel.ac.in/",
-    imageUrl: "/certificates/Understanding Incubation and Entrepreneurship.jpg",
-    pdfUrl: "/certificates/pdf/Understanding Incubation and Entrepreneurship.pdf",
-  },
-  {
-    icon: "fa-solid fa-code",
-    title: "HackerRank Java & Python Badge",
-    desc: "Earned Java and Python badges on HackerRank, demonstrating strong programming fundamentals.",
-    issuer: "HackerRank",
-    date: "2024",
-    credentialId: "HR-JP-BADGE",
-    credentialUrl: "https://www.hackerrank.com/profile/Pavithran030",
-  },
-  {
-    icon: "fa-solid fa-book",
-    title: "Published Author — Hope's Tapestry",
-    desc: "Contributed a story in the anthology 'Hope's Tapestry', published by Let's Write Publication.",
-    issuer: "Let's Write Publication",
-    date: "2024",
-    credentialId: "LWP-HT-2024",
-    credentialUrl: "https://www.amazon.in/",
-  },
-  {
-    icon: "fa-solid fa-users",
-    title: "Hackathon Participant",
-    desc: "Participated in Hackathons conducted by Bhumi-Skilled and ICT Academy.",
-    issuer: "Bhumi-Skilled & ICT Academy",
-    date: "2024",
-    credentialId: "ICT-BHUMI-2024",
-    credentialUrl: "https://www.ictacademy.in/",
+    icon: "fa-solid fa-chart-line",
+    title: "Level 2 — TN Skills 2025",
+    desc: "Qualified for and completed Level 2 in TN Skills Competition 2025 in Software Application Development, proving advanced engineering and architectural skills.",
+    issuer: "TN-Skills",
+    date: "2025",
+    credentialId: "TN-SKILLS-2025-L2",
+    credentialUrl: "https://www.tnskills.tn.gov.in/",
+    imageUrl: "/certificates/TN_Skills_Level-2.jpg",
+    pdfUrl: "/certificates/pdf/TN_Skills_Level-2.pdf",
   },
 ];
 
 const EXPERIENCE = [
   {
     date: "Feb 2026 – Apr 2026",
-    role: "Software Development with AI&ML",
+    role: "Software Development with AI & ML",
     company: "Mecandria IT Service and Solutions",
     bullets: [
-      "Completed hands-on training in Artificial Intelligence, Machine Learning, and Full Stack Development, including the development of a full-stack business application",
-      "Gained practical experience in application deployment on remote servers and implementing security measures for secure hosting and protection",
+      "Completed hands-on engineering in Artificial Intelligence, Machine Learning, and Full-Stack Development",
+      "Gained practical experience in containerized application deployment on remote Linux servers with secure SSL hosting and firewall policies",
     ],
-    status: "completed-status",
     statusText: "COMPLETED",
   },
   {
@@ -373,24 +359,50 @@ const EXPERIENCE = [
     role: "AI Engineer Intern",
     company: "ResDev Global Solution, Certainti.ai",
     bullets: [
-      "Completed hands-on training in Artificial Intelligence and Machine Learning concepts",
-      "Built and evaluated machine learning models using Python, TensorFlow, and Scikit-learn",
-      "Performed data preprocessing, model training, and performance evaluation on real datasets",
+      "Built and evaluated predictive machine learning models using Python, TensorFlow, and Scikit-learn",
+      "Engineered automated feature extraction and data preprocessing pipelines on high-dimensional datasets",
     ],
-    status: "completed-status",
     statusText: "COMPLETED",
   },
   {
     date: "Apr 2025 – Jun 2025",
     role: "AIML Virtual Intern",
-    company: "Eduskill & Google for Developer",
+    company: "Eduskill & Google for Developers",
     bullets: [
-      "Developed an AI-based interview automation system for organizational use",
-      "Worked on backend development, API integration, and AI workflow design",
-      "Collaborated on building a full-stack AI application following industry practices",
+      "Architected an AI-assisted interview automation system for organizational candidate assessment",
+      "Developed high-throughput FastAPI REST endpoints and interactive workflow orchestration",
     ],
-    status: "completed-status",
     statusText: "COMPLETED",
+  },
+];
+
+const EDUCATION = [
+  {
+    initial: "K",
+    degree: "B.E. CSE(AI & ML)",
+    institution: "K.S. Rangasamy College of Technology, Tiruchengode",
+    year: "2023 — 2027",
+    gpa: "CGPA: 8.95 (upto 6th sem)",
+    status: "pursuing",
+    tags: ["Machine Learning", "Deep Learning", "Computer Vision", "NLP"],
+  },
+  {
+    initial: "S",
+    degree: "HSC (Higher Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021 — 2023",
+    gpa: "90%",
+    status: "completed",
+    tags: ["Physics", "Chemistry", "Mathematics", "Computer Science"],
+  },
+  {
+    initial: "S",
+    degree: "SSLC (Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021",
+    gpa: "100%",
+    status: "completed",
+    tags: ["Science", "Mathematics", "English", "Tamil"],
   },
 ];
 
@@ -400,16 +412,14 @@ const SOCIAL_ICONS = [
   { icon: "fa-solid fa-code", url: "https://codolio.com/profile/Pavithran030", tooltip: "Codolio" },
 ];
 
-const PROJECT_CARD_WIDTH = 480;
-const PROJECT_GAP = 32;
-const NAVBAR_HEIGHT = 96;
+const NAVBAR_HEIGHT = 72;
 
 type VantaEffectInstance = {
   destroy?: () => void;
   resize?: () => void;
+  setOptions?: (options: Record<string, unknown>) => void;
 };
 
-/* Fix #5: Counter snaps to exact final value */
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-30px" });
@@ -417,7 +427,7 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 
   useEffect(() => {
     if (!isInView) return;
-    const duration = 1500;
+    const duration = 1400;
     const startTime = performance.now();
     const animate = (now: number) => {
       const elapsed = now - startTime;
@@ -428,7 +438,7 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setValue(target); // Snap to exact target on completion
+        setValue(target);
       }
     };
     requestAnimationFrame(animate);
@@ -442,123 +452,6 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
   );
 }
 
-// Skill bar that fills when in view
-function AnimatedSkillBar({ level }: { level: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-20px" });
-
-  return (
-    <div className="skill-bar" ref={ref}>
-      <motion.div
-        className="skill-bar-fill"
-        initial={{ width: "0%" }}
-        animate={isInView ? { width: `${level}%` } : { width: "0%" }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-      />
-    </div>
-  );
-}
-
-function ProjectsHorizontalScroll({
-  projects,
-  onProjectClick,
-}: {
-  projects: typeof PROJECTS;
-  onProjectClick: (p: (typeof PROJECTS)[0]) => void;
-}) {
-  const [isMobileProjects, setIsMobileProjects] = useState(
-    typeof window !== "undefined" ? window.innerWidth <= 768 : false,
-  );
-
-  useEffect(() => {
-    const onResize = () => setIsMobileProjects(window.innerWidth <= 768);
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  return (
-    <section id="projects" className="projects-section">
-      <div
-        className="projects-pin-wrapper"
-        style={{
-          position: "relative",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          overflow: "hidden",
-          padding: "0 var(--section-inline)",
-        }}
-      >
-        <span className="section-label" style={{ marginBottom: 12 }}>
-          // 04. MISSION LOG
-        </span>
-        <h2 className="section-heading" style={{ marginBottom: 32 }}>
-          Featured <span className="accent">Projects</span>
-        </h2>
-        <div
-          className="projects-track"
-          style={{
-            position: "relative",
-            display: "flex",
-            gap: `${PROJECT_GAP}px`,
-            willChange: "transform",
-          }}
-        >
-          {projects.map((p, i) => (
-            <motion.div
-              className="project-card"
-              key={p.id}
-              style={{ flex: `0 0 ${PROJECT_CARD_WIDTH}px` }}
-              initial={isMobileProjects ? { opacity: 0, x: i % 2 === 0 ? -56 : 56 } : { opacity: 0, y: 40 }}
-              whileInView={isMobileProjects ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: isMobileProjects ? "-20px" : "-50px" }}
-              transition={{ duration: isMobileProjects ? 0.72 : 0.6, delay: isMobileProjects ? i * 0.08 : i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="project-visual" onClick={() => onProjectClick(p)} style={{ cursor: "pointer" }}>
-                <img src={p.image} alt={p.title} className="project-image" loading="lazy" />
-                <div className="project-image-overlay">
-                  <i className="fa-solid fa-expand"></i>
-                </div>
-                <div className="project-mission">MISSION-{p.id}</div>
-              </div>
-              <div className="project-content">
-                <div className="project-title">{p.title}</div>
-                <div className="project-desc">{p.desc}</div>
-                <div className="project-tech">
-                  {p.tech.map((t) => (
-                    <span key={t}>{t}</span>
-                  ))}
-                </div>
-                <div className={`project-links ${!p.demo ? "center" : ""}`}>
-                  {p.demo ? (
-                    <a href={p.demo} target="_blank" rel="noopener noreferrer">
-                      ↗ LIVE DEMO
-                    </a>
-                  ) : null}
-
-                  {/* Always show source button. If `p.source` is missing render a disabled placeholder centered when no demo */}
-                  {p.source ? (
-                    <a href={p.source} target="_blank" rel="noopener noreferrer">
-                      {"</>"} SOURCE CODE
-                    </a>
-                  ) : (
-                    <a className="project-source-disabled" href="#" onClick={(e) => e.preventDefault()}>
-                      {"</>"} SOURCE CODE
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Scroll progress bar component
 function ScrollProgressBar() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -578,9 +471,18 @@ export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
+  
+  // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
+  const projectsContainerRef = useRef<HTMLDivElement>(null);
+  const projectsScrollRef = useRef<HTMLDivElement>(null);
+  
+  // Contact & feedback
+  const [copiedEmail, setCopiedEmail] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  
+  // Popups
   const [popupProject, setPopupProject] = useState<(typeof PROJECTS)[0] | null>(null);
   const [popupCertificate, setPopupCertificate] = useState<(typeof ACHIEVEMENT_CARDS)[0] | null>(null);
 
@@ -595,6 +497,19 @@ export default function Index() {
   const mousePos = useRef({ x: 0, y: 0 });
   const ringPos = useRef({ x: 0, y: 0 });
 
+  // Sync initial theme to cyber-emerald
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "cyber-emerald");
+  }, []);
+
+  // Copy Email Handler
+  const handleCopyEmail = useCallback(() => {
+    navigator.clipboard.writeText("techpavithran18@gmail.com");
+    setCopiedEmail(true);
+    toast.success("Email copied: techpavithran18@gmail.com");
+    setTimeout(() => setCopiedEmail(false), 2500);
+  }, []);
+
   // ===== HERO BACKGROUND — VANTA DOTS =====
   useEffect(() => {
     const host = heroVantaHostRef.current;
@@ -603,7 +518,6 @@ export default function Index() {
     let cancelled = false;
 
     const initVanta = async () => {
-      // Vanta effect modules read THREE from window scope at module evaluation time.
       (window as unknown as { THREE?: unknown }).THREE = THREE;
       const mod = await import("vanta/src/vanta.dots.js");
       if (cancelled) return;
@@ -619,14 +533,13 @@ export default function Index() {
         minWidth: 200.0,
         scale: 1.0,
         scaleMobile: 1.0,
-        color: 0xe08f2e,
-        backgroundColor: 0x1d1818,
-        size: 2.4,
-        spacing: 22.0,
+        color: 0x10b981,
+        backgroundColor: 0x080c14,
+        size: 2.5,
+        spacing: 24.0,
         showLines: false,
       });
 
-      // Pull the dots field upward and denser so it fills the full hero background.
       const dots = vantaRef.current as unknown as {
         camera?: {
           position?: { y: number; z: number };
@@ -658,30 +571,27 @@ export default function Index() {
 
   // ===== LOADER SEQUENCE =====
   useEffect(() => {
-    // Must run before any .to({ text: ... }) call below — TextPlugin has to be
-    // registered before its "text" property is used, otherwise the loader
-    // typing animation silently no-ops.
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
 
     const tl = gsap.timeline();
-    tl.to({}, { duration: 0.7 })
-      .to(loaderTextRef.current, { duration: 1.0, text: "INITIALIZING PORTFOLIO SYSTEMS...", ease: "none" }, 0.9)
+    tl.to({}, { duration: 0.5 })
+      .to(loaderTextRef.current, { duration: 0.8, text: "INITIALIZING PORTFOLIO ENGINE...", ease: "none" }, 0.6)
       .call(
         () => {
           if (loaderBarRef.current) loaderBarRef.current.style.width = "100%";
         },
         [],
-        1.9,
+        1.4,
       )
-      .to("#loader > *", { opacity: 0, duration: 0.4 }, 2.7)
+      .to("#loader > *", { opacity: 0, duration: 0.3 }, 2.1)
       .call(
         () => {
           setLoaded(true);
-          setTimeout(() => setDiamondOpen(true), 100);
-          setTimeout(() => setRevealGone(true), 1400);
+          setTimeout(() => setDiamondOpen(true), 50);
+          setTimeout(() => setRevealGone(true), 1200);
         },
         [],
-        3.1,
+        2.4,
       );
   }, []);
 
@@ -690,159 +600,237 @@ export default function Index() {
     if (!loaded || !revealGone) return;
 
     const lenis = new Lenis({
-      lerp: 0.06,
+      lerp: 0.08,
       smoothWheel: true,
-      wheelMultiplier: 0.7,
+      wheelMultiplier: 0.85,
       touchMultiplier: 1.5,
     });
     lenisRef.current = lenis;
 
     lenis.on("scroll", () => {
-      ScrollTrigger?.update?.();
+      ScrollTrigger.update();
+      window.dispatchEvent(new Event("scroll"));
     });
 
-    // Drive Lenis from GSAP's own ticker instead of a separate rAF loop so
-    // Lenis's smoothed scroll position and ScrollTrigger's scrub/pin math
-    // read the same frame — running two independent rAF loops caused a
-    // 1-frame lag that showed up as jitter, most visibly in the pinned
-    // projects section.
-    const onTick = (time: number) => {
-      lenis.raf(time * 1000);
+    const raf = (time: number) => {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     };
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    requestAnimationFrame(raf);
 
     return () => {
-      gsap.ticker.remove(onTick);
       lenis.destroy();
       lenisRef.current = null;
     };
   }, [loaded, revealGone]);
 
-  // ===== CUSTOM CURSOR =====
+  // ===== APPLE-STYLE FLUID CURSOR FOLLOW & INTERACTIVE HOVER =====
   useEffect(() => {
     if (!loaded || !revealGone || window.innerWidth <= 768) return;
-    const ring = cursorRingRef.current;
-    const dot = cursorDotRef.current;
-    if (!ring || !dot) return;
 
-    const move = (e: MouseEvent) => {
-      dot.style.left = e.clientX + "px";
-      dot.style.top = e.clientY + "px";
+    let isHovering = false;
+    let isTextHover = false;
+
+    const onMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
-    };
-    const down = () => {
-      ring.classList.add("clicking");
-      dot.classList.add("clicking");
-    };
-    const up = () => {
-      ring.classList.remove("clicking");
-      dot.classList.remove("clicking");
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.left = `${e.clientX}px`;
+        cursorDotRef.current.style.top = `${e.clientY}px`;
+      }
+      if (cursorRingRef.current?.classList.contains("hidden")) {
+        cursorRingRef.current.classList.remove("hidden");
+        cursorDotRef.current?.classList.remove("hidden");
+      }
     };
 
-    const lerpLoop = () => {
-      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.18;
-      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.18;
-      ring.style.left = ringPos.current.x + "px";
-      ring.style.top = ringPos.current.y + "px";
-      requestAnimationFrame(lerpLoop);
-    };
-    lerpLoop();
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
 
-    const addHover = () => {
-      document
-        .querySelectorAll("a, button, .btn-primary, .btn-secondary, .btn-transmit, .skill-card, .project-card, .achievement-card")
-        .forEach((el) => {
-          el.addEventListener("mouseenter", () => ring.classList.add("hovering"));
-          el.addEventListener("mouseleave", () => ring.classList.remove("hovering"));
-        });
-      document.querySelectorAll("p, h1, h2, h3, span, li").forEach((el) => {
-        el.addEventListener("mouseenter", () => ring.classList.add("text-hover"));
-        el.addEventListener("mouseleave", () => ring.classList.remove("text-hover"));
-      });
-    };
-    setTimeout(addHover, 3500);
+      const interactiveEl = target.closest(
+        "a, button, [role='button'], input, textarea, select, .project-card, .achievement-card, .skill-card, .nav-link, .nav-btn, .timeline-card, .timeline-dot, .filter-chip, .badge, .project-links a, .project-links button, [data-interactive='true'], [onclick], .copy-btn, .btn, .social-pill, .back-to-top"
+      );
 
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mousedown", down);
-    window.addEventListener("mouseup", up);
+      const textEl = target.closest("input[type='text'], input[type='email'], textarea");
+
+      if (textEl) {
+        isTextHover = true;
+        isHovering = false;
+        cursorRingRef.current?.classList.add("text-hover");
+        cursorDotRef.current?.classList.add("text-hover");
+        cursorRingRef.current?.classList.remove("hovering");
+        cursorDotRef.current?.classList.remove("hovering");
+      } else if (interactiveEl) {
+        isHovering = true;
+        isTextHover = false;
+        cursorRingRef.current?.classList.add("hovering");
+        cursorDotRef.current?.classList.add("hovering");
+        cursorRingRef.current?.classList.remove("text-hover");
+        cursorDotRef.current?.classList.remove("text-hover");
+      } else {
+        if (isHovering || isTextHover) {
+          isHovering = false;
+          isTextHover = false;
+          cursorRingRef.current?.classList.remove("hovering", "text-hover");
+          cursorDotRef.current?.classList.remove("hovering", "text-hover");
+        }
+      }
+    };
+
+    const onMouseDown = () => {
+      cursorRingRef.current?.classList.add("clicking");
+      cursorDotRef.current?.classList.add("clicking");
+    };
+
+    const onMouseUp = () => {
+      cursorRingRef.current?.classList.remove("clicking");
+      cursorDotRef.current?.classList.remove("clicking");
+    };
+
+    const onMouseLeave = () => {
+      cursorRingRef.current?.classList.add("hidden");
+      cursorDotRef.current?.classList.add("hidden");
+    };
+
+    const onMouseEnter = () => {
+      cursorRingRef.current?.classList.remove("hidden");
+      cursorDotRef.current?.classList.remove("hidden");
+    };
+
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mouseover", onMouseOver, { passive: true });
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mouseleave", onMouseLeave);
+    document.addEventListener("mouseenter", onMouseEnter);
+
+    let rafId: number;
+    const updateRing = () => {
+      // Smooth Apple-like inertial damping
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.22;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.22;
+      if (cursorRingRef.current) {
+        cursorRingRef.current.style.left = `${ringPos.current.x}px`;
+        cursorRingRef.current.style.top = `${ringPos.current.y}px`;
+      }
+      rafId = requestAnimationFrame(updateRing);
+    };
+    rafId = requestAnimationFrame(updateRing);
+
     return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mousedown", down);
-      window.removeEventListener("mouseup", up);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseover", onMouseOver);
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mouseleave", onMouseLeave);
+      document.removeEventListener("mouseenter", onMouseEnter);
+      cancelAnimationFrame(rafId);
     };
   }, [loaded, revealGone]);
 
-  // ===== SCROLL TRACKING =====
-  // Fix #6: Improved detection — uses 40% of viewport height for more accurate section tracking
+  // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION & SECTION MAP =====
   useEffect(() => {
-    const onScroll = () => {
-      const scrollTop = window.scrollY;
-      setNavScrolled(scrollTop > 80);
-      setShowBackTop(scrollTop > 400);
+    const bgLayer = document.querySelector(".bg-transition-layer") as HTMLElement | null;
 
-      const threshold = window.innerHeight * 0.4;
-      const sections = NAV_LINKS.map((id) => document.getElementById(id));
-      let foundActive = false;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const s = sections[i];
-        if (s && s.getBoundingClientRect().top <= threshold) {
-          setActiveNav(NAV_LINKS[i]);
-          foundActive = true;
-          break;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavScrolled(y > 40);
+      setShowBackTop(y > 360);
+
+      // Section Background Color Mapping
+      if (bgLayer) {
+        for (let i = SECTION_BG_COLORS.length - 1; i >= 0; i--) {
+          const item = SECTION_BG_COLORS[i];
+          const el = document.querySelector(item.section) as HTMLElement | null;
+          if (el) {
+            const top = el.getBoundingClientRect().top + y;
+            if (top <= y + window.innerHeight * 0.45) {
+              bgLayer.style.backgroundColor = item.color;
+              break;
+            }
+          }
         }
       }
-      if (!foundActive && scrollTop < 100) {
+
+      // Check if user has reached bottom of document (activates contact)
+      const isBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 70;
+      if (isBottom) {
+        setActiveNav("contact");
+        return;
+      }
+
+      // Check if user is at top of document (activates home)
+      if (y < 100) {
         setActiveNav("home");
+        return;
+      }
+
+      // Accurate active section detection using exact getBoundingClientRect offsets
+      const scrollPos = y + NAVBAR_HEIGHT + 80;
+      for (let i = NAV_LINKS.length - 1; i >= 0; i--) {
+        const id = NAV_LINKS[i];
+        const sec = document.getElementById(id);
+        if (sec) {
+          const top = sec.getBoundingClientRect().top + y;
+          if (top <= scrollPos) {
+            setActiveNav(id);
+            break;
+          }
+        }
       }
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ===== GSAP — only for complex pinning & text plugin =====
+  const scrollToTop = useCallback(() => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { duration: 1.2 });
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const scrollToSection = useCallback((id: string, smooth = true) => {
+    const section = document.getElementById(id);
+    if (!section) return;
+    setActiveNav(id);
+    const offset = id === "home" ? 0 : NAVBAR_HEIGHT + 12;
+    const top = Math.max(section.getBoundingClientRect().top + window.scrollY - offset, 0);
+    window.history.replaceState(null, "", id === "home" ? window.location.pathname : `#${id}`);
+    if (lenisRef.current && smooth) {
+      lenisRef.current.scrollTo(top, { duration: 1.2 });
+    } else {
+      window.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
+    }
+    setMobileMenuOpen(false);
+  }, []);
+
+  // Hash Navigation Handler on first load
+  useEffect(() => {
+    if (!loaded || !revealGone) return;
+    const hash = window.location.hash.replace("#", "");
+    if (hash && NAV_LINKS.includes(hash)) {
+      setTimeout(() => {
+        scrollToSection(hash, true);
+      }, 200);
+    }
+  }, [loaded, revealGone, scrollToSection]);
+
+  // ===== PROJECTS HORIZONTAL SCROLL (desktop only) =====
   useEffect(() => {
     if (!loaded || !revealGone) return;
 
-    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
+    let ctx: gsap.Context | null = null;
 
-    requestAnimationFrame(() => {
-      Splitting({ target: "[data-splitting]", by: "words" });
-
-      // ---- HERO — smooth parallax fade-out (requires pinning) ----
-      const heroTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#home",
-          start: "top top",
-          end: "+=40%",
-          scrub: 0.3,
-          pin: false,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-      heroTl.to(".hero-text", { y: -80, opacity: 0, scale: 0.97, duration: 1, ease: "power2.in" }, 0);
-      heroTl.to("#hero-vanta-bg", { opacity: 0.4, duration: 0.8 }, 0);
-      heroTl.to(".hero-glow-orb", { opacity: 0, scale: 1.3, duration: 1 }, 0);
-      heroTl.to(".hero-grid-pattern", { opacity: 0, duration: 0.8 }, 0);
-      heroTl.to(".hero-corner-frame", { opacity: 0, duration: 0.6 }, 0);
-
-      // ---- ABOUT word reveals ----
-      const aboutWords = document.querySelectorAll(".about-section [data-splitting] .word");
-      if (aboutWords.length) {
-        gsap.from(aboutWords, {
-          y: "100%",
-          opacity: 0,
-          rotationX: -80,
-          stagger: { each: 0.02, from: "start" },
-          ease: "power4.out",
-          scrollTrigger: { trigger: ".about-section", start: "top 70%", end: "top 20%", scrub: 0.8 },
-        });
-      }
+    const setupProjectsScroll = () => {
+      ctx?.revert();
 
       // ---- PROJECTS HORIZONTAL SCROLL (desktop only) ----
       const isMobile = window.innerWidth <= 768;
-      const projectsTrack = document.querySelector(".projects-track") as HTMLElement;
+      const projectsTrack = document.querySelector(".projects-track") as HTMLElement | null;
       const projectsSection = document.getElementById("projects");
       if (projectsTrack && projectsSection && !isMobile) {
         const projectsWrapper = projectsSection.querySelector(".projects-pin-wrapper") as HTMLElement | null;
@@ -862,193 +850,47 @@ export default function Index() {
           const translateDistance = Math.max(byTrackWidth, byLastCard);
 
           if (translateDistance > 0) {
-            gsap.to(projectsTrack, {
-              x: -translateDistance,
-              ease: "none",
-              scrollTrigger: {
-                trigger: projectsSection,
-                start: "top top",
-                end: () => `+=${translateDistance}`,
-                scrub: true,
-                pin: true,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-              },
-            });
+            ctx = gsap.context(() => {
+              gsap.to(projectsTrack, {
+                x: -translateDistance,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: projectsSection,
+                  start: "top top",
+                  end: () => `+=${translateDistance}`,
+                  scrub: true,
+                  pin: true,
+                  anticipatePin: 1,
+                  invalidateOnRefresh: true,
+                },
+              });
+            }, projectsSection);
 
             // Ensure trigger measurements are updated after timeline registration.
             (ScrollTrigger as unknown as { refresh?: () => void }).refresh?.();
           }
         }
+      } else if (projectsTrack) {
+        gsap.set(projectsTrack, { clearProps: "all" });
       }
 
-      // (Education and Experience timelines now use Framer Motion ScrollTimeline component)
+      ScrollTrigger.refresh();
+    };
 
-      // ---- BACKGROUND COLOR TRANSITIONS ----
-      const bgLayer = document.querySelector(".bg-transition-layer") as HTMLElement;
-      if (bgLayer) {
-        SECTION_BG_COLORS.forEach(({ section, color }) => {
-          const el = document.querySelector(section);
-          if (el) {
-            ScrollTrigger.create({
-              trigger: el,
-              start: "top 60%",
-              end: "bottom 40%",
-              onEnter: () => gsap.to(bgLayer, { backgroundColor: color, duration: 1.2, ease: "power2.inOut" }),
-              onEnterBack: () => gsap.to(bgLayer, { backgroundColor: color, duration: 1.2, ease: "power2.inOut" }),
-            });
-          }
-        });
-      }
+    const timer = setTimeout(setupProjectsScroll, 150);
 
-      // ---- SECTION HEADING character reveals ----
-      document.querySelectorAll(".section-heading[data-splitting]").forEach((heading) => {
-        const chars = heading.querySelectorAll(".char");
-        if (chars.length) {
-          gsap.from(chars, {
-            opacity: 0,
-            y: 60,
-            rotateX: -90,
-            filter: "blur(8px)",
-            stagger: 0.02,
-            duration: 0.8,
-            ease: "power4.out",
-            scrollTrigger: { trigger: heading, start: "top 80%", toggleActions: "play none none reverse" },
-          });
-        }
-      });
+    const onResize = () => {
+      setupProjectsScroll();
+    };
 
-      // NOTE: section reveal (y + opacity) is intentionally handled by the
-      // <MotionSection> Framer Motion wrapper, not GSAP. A previous GSAP
-      // scrollTrigger scrub used to animate opacity/transform/filter on the
-      // exact same <section> elements that MotionSection controls — two
-      // engines writing to the same style properties every scroll frame,
-      // which is what caused the flicker/jitter during scroll. Do not
-      // reintroduce a GSAP tween targeting ".content-wrapper section" here.
-    });
-
-    // Layout can still shift after lazy-loaded images/webfonts finish, which
-    // skews ScrollTrigger's start/end measurements (pins/scrub taken before
-    // final layout). Recalculate once everything has actually settled.
-    const onWindowLoad = () => ScrollTrigger.refresh();
-    window.addEventListener("load", onWindowLoad);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("load", onWindowLoad);
-      ScrollTrigger.getAll().forEach((t) => t.kill());
+      clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+      ctx?.revert();
     };
   }, [loaded, revealGone]);
-
-  // ===== MAGNETIC HOVER EFFECT (desktop only) =====
-  useEffect(() => {
-    if (!loaded || window.innerWidth <= 768) return;
-
-    const magneticEls = document.querySelectorAll(".hero-btn, .hero-social-link, .btn-submit");
-    const handlers: Array<{ el: Element; move: (e: MouseEvent) => void; leave: () => void }> = [];
-
-    magneticEls.forEach((el) => {
-      const move = (e: MouseEvent) => {
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        gsap.to(el, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: "power2.out" });
-      };
-      const leave = () => {
-        gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
-      };
-      (el as HTMLElement).addEventListener("mousemove", move);
-      (el as HTMLElement).addEventListener("mouseleave", leave);
-      handlers.push({ el, move, leave });
-    });
-
-    return () => {
-      handlers.forEach(({ el, move, leave }) => {
-        (el as HTMLElement).removeEventListener("mousemove", move);
-        (el as HTMLElement).removeEventListener("mouseleave", leave);
-      });
-    };
-  }, [loaded, revealGone]);
-
-  // Prevent background scrolling while mobile navigation is open.
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [mobileMenuOpen]);
-
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileMenuOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mobileMenuOpen]);
-
-  // ===== SKILL CARD TILT =====
-  const handleSkillMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (window.innerWidth <= 768) return;
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `rotateY(${x * 15}deg) rotateX(${-y * 15}deg)`;
-  }, []);
-  const handleSkillMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = "";
-  }, []);
-
-  const scrollToTop = useCallback(() => {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { duration: 1.2 });
-      return;
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  const scrollToSection = useCallback((id: string, smooth = true) => {
-    const section = document.getElementById(id);
-    if (!section) return;
-    const offset = id === "home" ? 0 : NAVBAR_HEIGHT;
-    const top = Math.max(section.getBoundingClientRect().top + window.scrollY - offset, 0);
-    window.history.replaceState(null, "", id === "home" ? window.location.pathname : `#${id}`);
-    if (lenisRef.current && smooth) {
-      lenisRef.current.scrollTo(top, { duration: 1.5 });
-    } else {
-      window.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
-    }
-    setMobileMenuOpen(false);
-  }, []);
-
-  useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-    // Always reopen from hero on full refresh.
-    const alignToTop = () => {
-      if (window.location.hash) {
-        window.history.replaceState(null, "", window.location.pathname);
-      }
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      } else {
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      }
-      setActiveNav("home");
-    };
-    window.addEventListener("load", alignToTop);
-    const timeout = window.setTimeout(alignToTop, 0);
-    return () => {
-      window.removeEventListener("load", alignToTop);
-      window.clearTimeout(timeout);
-    };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1065,25 +907,22 @@ export default function Index() {
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, subject, message }),
       });
 
       const result = await response.json();
-
       if (!response.ok) {
         throw new Error(result.error || "Failed to send the email.");
       }
 
       setFormSent(true);
       form.reset();
-      toast.success("Message sent successfully!");
+      toast.success("Message sent successfully! I will get back to you soon.");
       setTimeout(() => setFormSent(false), 5000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to send email:", err);
-      const errorMsg = err.message || "Failed to send message. Please check your network and try again.";
+      const errorMsg = err instanceof Error ? err.message : "Failed to send message. Please try again.";
       setSubmitError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -1095,19 +934,18 @@ export default function Index() {
     <>
       <SEO
         title="Pavithran G | Backend Developer & AI Engineer Portfolio"
-        description="Portfolio of Pavithran G, an AI and ML developer building machine learning, computer vision, and automation projects with Python, TensorFlow, and modern web tools."
+        description="Portfolio of Pavithran G, an AI & ML engineer specializing in Agentic RAG, computer vision, automation workflows, and full-stack AI development."
         path="/"
         keywords={[
           "Pavithran G",
           "AI ML developer portfolio",
           "machine learning engineer",
+          "Agentic RAG",
           "computer vision developer",
           "automation workflows",
           "Python developer",
           "TensorFlow portfolio",
-          "React portfolio",
-          "UiPath automation",
-          "n8n workflows",
+          "React TypeScript",
         ]}
         type="website"
       />
@@ -1116,13 +954,13 @@ export default function Index() {
       <div id="loader" className={loaded ? "hidden" : ""}>
         <div className="loader-scanline" />
         <svg className="loader-logo" viewBox="0 0 60 60">
-          <polygon points="30,2 58,30 30,58 2,30" fill="none" stroke="hsl(10,100%,59%)" strokeWidth="2" />
+          <polygon points="30,2 58,30 30,58 2,30" fill="none" stroke="hsl(var(--accent-ice))" strokeWidth="2" />
           <polygon
             points="30,12 48,30 30,48 12,30"
             fill="none"
-            stroke="hsl(10,100%,59%)"
+            stroke="hsl(var(--accent-mint))"
             strokeWidth="1.5"
-            opacity="0.5"
+            opacity="0.6"
           />
         </svg>
         <div className="loader-text">
@@ -1160,18 +998,6 @@ export default function Index() {
       {/* NAVBAR */}
       <nav className={`navbar ${navScrolled ? "scrolled" : ""}`}>
         <div className="nav-inner">
-          <a
-            className="nav-brand"
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("home");
-            }}
-          >
-            {/* <span className="nav-brand-mark">PG</span>
-            <span className="nav-brand-divider"></span>
-            <span className="nav-brand-label">PORTFOLIO</span> */}
-          </a>
           <ul className="nav-links-minimal">
             {NAV_LINKS.map((id) => (
               <li key={id}>
@@ -1188,31 +1014,34 @@ export default function Index() {
               </li>
             ))}
           </ul>
-          <div
-            className={`hamburger ${mobileMenuOpen ? "open" : ""}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            role="button"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setMobileMenuOpen(!mobileMenuOpen);
-              }
-            }}
-          >
-            <span />
-            <span />
-            <span />
+
+          <div className="nav-right-actions">
+            <div
+              className={`hamburger ${mobileMenuOpen ? "open" : ""}`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              role="button"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setMobileMenuOpen(!mobileMenuOpen);
+                }
+              }}
+            >
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* SCROLL PROGRESS — shown only after user begins scrolling */}
+      {/* SCROLL PROGRESS */}
       {loaded && revealGone && navScrolled && <ScrollProgressBar />}
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU DRAWER */}
       <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`} onClick={() => setMobileMenuOpen(false)}>
         <div className="mobile-menu-inner" onClick={(e) => e.stopPropagation()}>
           <button
@@ -1224,6 +1053,7 @@ export default function Index() {
             <span></span>
             <span></span>
           </button>
+
           <div className="mobile-menu-nav-list" role="menu" aria-label="Mobile navigation">
             {NAV_LINKS.map((id, i) => (
               <a
@@ -1231,18 +1061,19 @@ export default function Index() {
                 href={`#${id}`}
                 className={`mobile-menu-link ${activeNav === id ? "active" : ""}`}
                 role="menuitem"
-                style={{ transitionDelay: mobileMenuOpen ? `${i * 0.06 + 0.15}s` : "0s" }}
+                style={{ transitionDelay: mobileMenuOpen ? `${i * 0.04 + 0.1}s` : "0s" }}
                 onClick={(e) => {
                   e.preventDefault();
                   scrollToSection(id);
                 }}
               >
                 <span className="mobile-link-text">{id}</span>
+                <span className="text-xs opacity-50 font-mono">0{i + 1}</span>
               </a>
             ))}
           </div>
+
           <div className="mobile-menu-footer">
-            <div className="mobile-menu-divider"></div>
             <div className="mobile-menu-socials">
               {SOCIAL_ICONS.map((s) => (
                 <a
@@ -1265,16 +1096,16 @@ export default function Index() {
       {popupProject && (
         <div className="project-popup-overlay" onClick={() => setPopupProject(null)}>
           <div className="project-popup" onClick={(e) => e.stopPropagation()}>
-            <button className="popup-close" onClick={() => setPopupProject(null)}>
+            <button className="popup-close" onClick={() => setPopupProject(null)} aria-label="Close modal">
               <i className="fa-solid fa-xmark"></i>
             </button>
             <img src={popupProject.image} alt={popupProject.title} className="popup-image" />
             <div className="popup-body">
+              <span className="text-xs font-mono uppercase px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3 inline-block">
+                {popupProject.category}
+              </span>
               <h3 className="popup-title">{popupProject.title}</h3>
-              <div
-                className="popup-desc"
-                style={{ maxHeight: 220, overflowY: "auto", whiteSpace: "pre-wrap" }}
-              >
+              <div className="popup-desc" style={{ whiteSpace: "pre-wrap" }}>
                 {popupProject.longDesc}
               </div>
               <div className="popup-tech">
@@ -1285,18 +1116,22 @@ export default function Index() {
               <div className="popup-links">
                 {popupProject.demo ? (
                   <a href={popupProject.demo} target="_blank" rel="noopener noreferrer" className="btn-primary">
-                    ↗ LIVE DEMO
+                    <ExternalLink size={14} className="mr-1.5" /> LIVE DEMO
                   </a>
                 ) : (
-                  <span className="btn-primary disabled">↗ LIVE DEMO</span>
+                  <span className="btn-primary disabled">
+                    <ExternalLink size={14} className="mr-1.5" /> LIVE DEMO
+                  </span>
                 )}
 
                 {popupProject.source ? (
                   <a href={popupProject.source} target="_blank" rel="noopener noreferrer" className="btn-secondary">
-                    {"</>"} SOURCE CODE
+                    <Github size={14} className="mr-1.5" /> SOURCE CODE
                   </a>
                 ) : (
-                  <span className="btn-secondary disabled">{"</>"} SOURCE CODE</span>
+                  <span className="btn-secondary disabled">
+                    <Github size={14} className="mr-1.5" /> SOURCE CODE
+                  </span>
                 )}
               </div>
             </div>
@@ -1308,76 +1143,42 @@ export default function Index() {
       {popupCertificate && (
         <div className="project-popup-overlay" onClick={() => setPopupCertificate(null)}>
           <div className="project-popup certificate-popup" onClick={(e) => e.stopPropagation()}>
-            <button className="popup-close" onClick={() => setPopupCertificate(null)}>
+            <button className="popup-close" onClick={() => setPopupCertificate(null)} aria-label="Close modal">
               <i className="fa-solid fa-xmark"></i>
             </button>
-            <div className="certificate-popup-visual" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-              {popupCertificate.imageUrl ? (
-                <div style={{ width: "100%", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0c" }}>
-                  <div className="certificate-visual-glow" style={{ opacity: 0.6 }}></div>
-                  <img
-                    src={popupCertificate.imageUrl}
-                    alt={popupCertificate.title}
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                      objectFit: "contain",
-                      zIndex: 2,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      if (popupCertificate.pdfUrl) {
-                        window.open(popupCertificate.pdfUrl, "_blank", "noopener,noreferrer");
-                      } else {
-                        window.open(popupCertificate.imageUrl, "_blank", "noopener,noreferrer");
-                      }
-                    }}
-                    title="Click to view full certificate"
-                  />
-                </div>
-              ) : (
-                <>
-                  <div className="certificate-visual-glow"></div>
-                  <div className="certificate-visual-inner">
-                    <div className="certificate-visual-header">
-                      <span className="certificate-visual-badge">// VERIFIED CREDENTIAL</span>
-                      <span className="certificate-visual-id">{popupCertificate.credentialId}</span>
-                    </div>
-                    <i className={`${popupCertificate.icon} certificate-visual-icon`}></i>
-                    <div className="certificate-visual-title">{popupCertificate.title}</div>
-                    <div className="certificate-visual-recipient">RECIPIENT: PAVITHRAN G</div>
-                    <div className="certificate-visual-footer">
-                      <div className="certificate-visual-issuer">ISSUER: {popupCertificate.issuer}</div>
-                      <div className="certificate-visual-date">DATE: {popupCertificate.date}</div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="popup-body">
-              <h3 className="popup-title">{popupCertificate.title}</h3>
-              <div
-                className="popup-desc"
-                style={{ maxHeight: 200, overflowY: "auto", whiteSpace: "pre-wrap" }}
-              >
-                {popupCertificate.desc}
+            {popupCertificate.imageUrl && (
+              <div className="p-4 bg-slate-950/80 rounded-t-3xl flex items-center justify-center">
+                <img
+                  src={popupCertificate.imageUrl}
+                  alt={popupCertificate.title}
+                  className="max-h-72 object-contain rounded-xl border border-slate-800 shadow-xl"
+                />
               </div>
+            )}
+            <div className="popup-body">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                  {popupCertificate.issuer}
+                </span>
+                <span className="text-xs font-mono text-slate-400">• {popupCertificate.date}</span>
+              </div>
+              <h3 className="popup-title">{popupCertificate.title}</h3>
+              <p className="popup-desc">{popupCertificate.desc}</p>
+              
               <div className="popup-links">
                 {popupCertificate.pdfUrl ? (
                   <a href={popupCertificate.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
-                    ↗ VIEW CERTIFICATE
+                    <ExternalLink size={14} className="mr-1.5" /> VIEW PDF
                   </a>
                 ) : popupCertificate.imageUrl ? (
                   <a href={popupCertificate.imageUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
-                    ↗ VIEW CERTIFICATE
+                    <ExternalLink size={14} className="mr-1.5" /> VIEW FULL IMAGE
                   </a>
                 ) : null}
-                {popupCertificate.credentialUrl ? (
-                  <a href={popupCertificate.credentialUrl} target="_blank" rel="noopener noreferrer" className={popupCertificate.pdfUrl || popupCertificate.imageUrl ? "btn-secondary" : "btn-primary"}>
-                    ↗ VERIFY CREDENTIAL
+                {popupCertificate.credentialUrl && (
+                  <a href={popupCertificate.credentialUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+                    <Award size={14} className="mr-1.5" /> VERIFY CREDENTIAL
                   </a>
-                ) : (
-                  <span className="btn-secondary disabled">↗ VERIFY CREDENTIAL</span>
                 )}
                 <button onClick={() => setPopupCertificate(null)} className="btn-secondary">
                   CLOSE
@@ -1393,12 +1194,23 @@ export default function Index() {
         <section id="home" className="hero-section">
           <div id="hero-vanta-bg" ref={heroVantaHostRef} className="hero-vanta-bg" aria-hidden="true"></div>
           <div className="hero-grid-pattern"></div>
-          <div className="hero-glow-orb hero-glow-orb--1"></div>
-          <div className="hero-glow-orb hero-glow-orb--2"></div>
-          <div className="hero-corner-frame hero-corner-frame--tl"></div>
-          <div className="hero-corner-frame hero-corner-frame--br"></div>
 
           <div className="hero-text">
+            <div className="hero-subtitle-row">
+              <span className="hero-subtitle-badge">
+                <span className="status-dot"></span>
+                AVAILABLE FOR AI/ML ROLES
+              </span>
+              <span className="hero-subtitle-separator hidden sm:inline">—</span>
+              <span className="hero-subtitle-text hidden sm:inline">K.S.Rangasamy College of Technology</span>
+            </div>
+
+            <div className="hero-role-tag">
+              <span className="hero-role-line"></span>
+              <h2 className="hero-role-label">Backend Developer & AI Engineer</h2>
+              <span className="hero-role-line"></span>
+            </div>
+
             <h1 className="hero-name">
               <span className="hero-name-first">PAVITHRAN</span>
               <span className="hero-name-last">
@@ -1407,24 +1219,9 @@ export default function Index() {
               </span>
             </h1>
 
-            <div className="hero-role-tag">
-              <span className="hero-role-line"></span>
-              <span className="hero-role-label">Backend Developer & AI Engineer</span>
-              <span className="hero-role-line"></span>
-            </div>
-
-            <div className="hero-subtitle-row">
-              <span className="hero-subtitle-badge">
-                <span className="status-dot"></span>
-                AVAILABLE
-              </span>
-              <span className="hero-subtitle-separator">—</span>
-              <span className="hero-subtitle-text">K.S.Rangasamy College of Technology</span>
-            </div>
-
             <p className="hero-description">
-              Building AI-driven applications, automation workflows & computer vision systems. Turning data into
-              real-world impact with Python, TensorFlow & full-stack AI development.
+              Crafting production-ready AI architectures, Agentic RAG engines, computer vision systems & automation workflows.
+              Transforming complex intelligence into elegant, real-world impact.
             </p>
 
             <div className="hero-buttons">
@@ -1436,17 +1233,28 @@ export default function Index() {
                   scrollToSection("projects");
                 }}
               >
-                <span>View Projects</span>
+                <span>Explore Projects</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 17L17 7M17 7H7M17 7V17" />
                 </svg>
               </a>
+
               <a href="/Pavithran_G.pdf" className="hero-btn hero-btn--ghost" download>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
-                <span>Resume</span>
+                <span>Download CV</span>
               </a>
+
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                className="hero-btn hero-btn--ghost"
+                title="Copy Email"
+              >
+                {copiedEmail ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                <span>{copiedEmail ? "Copied!" : "Copy Email"}</span>
+              </button>
             </div>
 
             <div className="hero-social-row">
@@ -1457,9 +1265,7 @@ export default function Index() {
                 aria-label="GitHub"
                 className="hero-social-link"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                </svg>
+                <i className="fa-brands fa-github text-lg"></i>
               </a>
               <a
                 href="https://www.linkedin.com/in/pavithran030"
@@ -1468,15 +1274,14 @@ export default function Index() {
                 aria-label="LinkedIn"
                 className="hero-social-link"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
+                <i className="fa-brands fa-linkedin text-lg"></i>
               </a>
-              <a href="mailto:techpavithran18@gmail.com" aria-label="Email" className="hero-social-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
-                  <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
-                </svg>
+              <a
+                href="mailto:techpavithran18@gmail.com"
+                aria-label="Email"
+                className="hero-social-link"
+              >
+                <i className="fa-solid fa-envelope text-lg"></i>
               </a>
               <a
                 href="https://codolio.com/profile/Pavithran030"
@@ -1485,25 +1290,13 @@ export default function Index() {
                 aria-label="Codolio"
                 className="hero-social-link"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-                </svg>
+                <i className="fa-solid fa-code text-lg"></i>
               </a>
-              <span className="hero-social-divider"></span>
             </div>
 
             <div className="hero-scroll-hint" aria-label="Scroll to explore">
               <span className="hero-scroll-hint-icon" aria-hidden="true">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 5v14" />
                   <path d="m18 13-6 6-6-6" />
                 </svg>
@@ -1515,13 +1308,12 @@ export default function Index() {
 
         {/* ===== ABOUT ===== */}
         <MotionSection id="about" className="about-section">
-          <span className="section-label">// 01. WHO I AM</span>
-          <h2 className="section-heading" data-splitting>
+          <span className="section-label">// 01. ABOUT</span>
+          <h2 className="section-heading">
             About <span className="accent">Me</span>
           </h2>
           <div className="about-grid">
             <MotionItem className="about-profile-card" delay={0.1}>
-              <div className="profile-card-glow"></div>
               <div className="profile-card-inner">
                 <div className="profile-photo-wrapper">
                   <img src={profilePhoto} alt="Pavithran G" className="profile-photo" loading="lazy" />
@@ -1530,6 +1322,7 @@ export default function Index() {
                 </div>
                 <div className="profile-name-tag">PAVITHRAN G</div>
                 <span className="profile-role-badge">Backend Developer & AI Engineer</span>
+                
                 <div className="profile-meta-row">
                   <span className="profile-meta-item">
                     <i className="fa-solid fa-location-dot"></i> Tiruchengode, TN
@@ -1538,10 +1331,12 @@ export default function Index() {
                     <i className="fa-solid fa-graduation-cap"></i> B.E. AI &amp; ML
                   </span>
                 </div>
+                
                 <div className="profile-status-row">
                   <span className="profile-status-dot"></span>
                   Open for opportunities
                 </div>
+
                 <div className="profile-social-links">
                   <a
                     href="https://github.com/Pavithran030"
@@ -1561,7 +1356,11 @@ export default function Index() {
                   >
                     <i className="fa-brands fa-linkedin"></i>
                   </a>
-                  <a href="mailto:techpavithran18@gmail.com" className="profile-social-btn" aria-label="Email">
+                  <a
+                    href="mailto:techpavithran18@gmail.com"
+                    className="profile-social-btn"
+                    aria-label="Email"
+                  >
                     <i className="fa-solid fa-envelope"></i>
                   </a>
                   <a
@@ -1576,28 +1375,29 @@ export default function Index() {
                 </div>
               </div>
             </MotionItem>
+
             <MotionItem className="about-text" delay={0.2}>
-              <p data-splitting>
+              <p>
                 Motivated AI and Machine Learning undergraduate with hands-on experience in building AI-driven
-                applications, automation workflows, and computer vision systems. Skilled in Python, machine learning
-                fundamentals, and full-stack AI project development.
+                applications, automation workflows, and computer vision systems. Skilled in Python, modern deep learning
+                frameworks, and end-to-end full-stack AI development.
               </p>
-              <p data-splitting>
-                I've interned at ResDev Global Solution (Certainti.ai) as an AI Engineer and completed a virtual AIML
-                internship with Google for Developers through Eduskill. My projects range from RPA automation with
-                UiPath to bilingual AI chatbots and real-time motion capture systems.
+              <p>
+                I've interned at <strong>ResDev Global Solution (Certainti.ai)</strong> as an AI Engineer and completed an AIML
+                virtual internship with <strong>Google for Developers</strong> through Eduskill. My engineering projects range from
+                enterprise RPA pipelines with UiPath to Agentic Hybrid RAG engines and real-time biometric vision systems.
               </p>
-              <p data-splitting>
-                Seeking an entry-level AI/ML or software engineering role to apply problem-solving skills, data-driven
-                thinking, and continuous learning to real-world industry challenges. Let's build something impactful
-                together.
+              <p>
+                Seeking an entry-level AI/ML or software engineering role to apply data-driven problem solving, rigorous
+                architectural design, and continuous learning to high-impact challenges.
               </p>
+
               <div className="about-stats">
                 {[
                   { val: 3, suffix: "+", label: "Internships" },
                   { val: 5, suffix: "+", label: "Projects" },
-                  { val: 140, suffix: "+", label: "LeetCode" },
-                  { val: 10, suffix: "+", label: "Certifications" },
+                  { val: 200, suffix: "+", label: "LeetCode" },
+                  { val: 11, suffix: "", label: "Certifications" },
                 ].map((s) => (
                   <div className="stat-card" key={s.label}>
                     <div className="stat-number">
@@ -1613,64 +1413,142 @@ export default function Index() {
 
         {/* ===== SKILLS ===== */}
         <MotionSection id="skills" className="skills-section">
-          <span className="section-label">// 02. TECH ARSENAL</span>
-          <h2 className="section-heading" data-splitting>
-            My <span className="accent">Skills</span>
+          <span className="section-label">// 02. TECHNICAL MATRIX</span>
+          <h2 className="section-heading">
+            Technical <span className="accent">Skills</span>
           </h2>
-          <div className="skills-categories">
-            {SKILLS_BY_CATEGORY.map(({ category, skills }, catIdx) => {
-              const CatIcon = CATEGORY_ICONS[category] || Code2;
+
+          <div className="skills-category-showcase">
+            {SKILLS_BY_CATEGORY.map((catGroup) => {
+              const badgeSymbol = CATEGORY_BADGES[catGroup.category] || ">_";
               return (
-                <MotionItem key={category} delay={catIdx * 0.1}>
-                  <div className="skill-category-header">
-                    <div className="skill-category-icon">
-                      <CatIcon size={20} />
+                <div className="skills-category-group" key={catGroup.category}>
+                  <div className="skills-category-header">
+                    <div className="skills-category-title-wrap">
+                      <span className="skills-category-badge">{badgeSymbol}</span>
+                      <h3 className="skills-category-title">{catGroup.category}</h3>
                     </div>
-                    <h3 className="skill-category-title">{category}</h3>
-                    <span className="skill-category-count">{skills.length} skills</span>
+                    <div className="skills-category-count-wrap">
+                      <span className="skills-category-dot-ring">
+                        <span className="skills-category-dot-core"></span>
+                      </span>
+                      <span className="skills-category-count">{catGroup.skills.length} skills</span>
+                    </div>
                   </div>
-                  <StaggerContainer className="skills-grid">
-                    {skills.map((skill) => {
+
+                  <div className="skills-category-cards-grid">
+                    {catGroup.skills.map((skill) => {
                       const logo = SKILL_LOGOS[skill.name];
                       return (
-                        <motion.div
-                          className="skill-card"
-                          key={skill.name}
-                          variants={staggerChildVariants}
-                          onMouseMove={handleSkillMouseMove}
-                          onMouseLeave={handleSkillMouseLeave}
-                        >
-                          <div className="skill-card-core">
-                            <div className="skill-icon">
-                              {logo && (
-                                <img
-                                  src={logo.src}
-                                  alt={logo.alt}
-                                  className={`skill-icon-image${logo.className ? ` ${logo.className}` : ""}`}
-                                  loading="lazy"
-                                />
-                              )}
-                            </div>
-                            <div className="skill-name">{skill.name}</div>
+                        <div className="skill-card-item" key={skill.name}>
+                          <div className="skill-card-icon-container">
+                            {logo ? (
+                              <img
+                                src={logo.src}
+                                alt={logo.alt}
+                                className="skill-card-icon-img"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <Cpu size={24} className="text-amber-400" />
+                            )}
                           </div>
-                        </motion.div>
+                          <span className="skill-card-name">{skill.name}</span>
+                        </div>
                       );
                     })}
-                  </StaggerContainer>
-                </MotionItem>
+                  </div>
+                </div>
               );
             })}
           </div>
         </MotionSection>
 
         {/* ===== PROJECTS ===== */}
-        <ProjectsHorizontalScroll projects={PROJECTS} onProjectClick={setPopupProject} />
+        <section id="projects" ref={projectsContainerRef} className="projects-section-pinned">
+          <div className="projects-inner-wrap projects-pin-wrapper">
+            <div className="projects-header-top">
+              <div>
+                <span className="section-label">// 03. FEATURED WORK</span>
+                <h2 className="section-heading">
+                  Featured <span className="accent">Projects</span>
+                </h2>
+              </div>
+              <div className="projects-header-meta">
+                <span className="projects-count-badge">
+                  <span className="projects-count-dot"></span>
+                  {PROJECTS.length} PRODUCTION APPS
+                </span>
+              </div>
+            </div>
+
+            {/* Horizontal Scroll Track on desktop / Clean vertical cards on mobile */}
+            <div className="projects-viewport-mask">
+              <div
+                ref={projectsScrollRef}
+                className="projects-horizontal-track projects-track"
+              >
+                {PROJECTS.map((p, idx) => (
+                  <motion.div
+                    className="project-card project-card-horizontal"
+                    key={p.id}
+                    initial={{ opacity: 0, y: 32, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-30px", amount: 0.12 }}
+                    transition={{
+                      duration: 0.65,
+                      delay: Math.min(idx * 0.08, 0.25),
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    whileTap={{ scale: 0.985 }}
+                  >
+                    <div className="project-card-glow" />
+                    <div className="project-visual" onClick={() => setPopupProject(p)}>
+                      <img src={p.image} alt={p.title} className="project-image" loading="lazy" />
+                      <div className="project-image-overlay">
+                        <i className="fa-solid fa-expand"></i>
+                      </div>
+                      <div className="project-mission">MISSION-{p.id}</div>
+                      <div className="project-cat-badge">{p.category}</div>
+                    </div>
+                    <div className="project-content">
+                      <h3 className="project-title">{p.title}</h3>
+                      <p className="project-desc">{p.desc}</p>
+                      <div className="project-tech">
+                        {p.tech.slice(0, 4).map((t) => (
+                          <span key={t}>{t}</span>
+                        ))}
+                        {p.tech.length > 4 && <span>+{p.tech.length - 4}</span>}
+                      </div>
+                      <div className="project-links">
+                        {p.demo && (
+                          <a href={p.demo} target="_blank" rel="noopener noreferrer" className="project-link-demo">
+                            <ExternalLink size={13} /> LIVE DEMO
+                          </a>
+                        )}
+                        {p.source ? (
+                          <a href={p.source} target="_blank" rel="noopener noreferrer" className="project-link-code">
+                            <Code2 size={13} /> SOURCE CODE
+                          </a>
+                        ) : (
+                          <button type="button" onClick={() => setPopupProject(p)} className="project-link-code">
+                            <ExternalLink size={13} /> DETAILS
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ===== EXPERIENCE ===== */}
         <MotionSection id="experience" className="experience-section">
-          <span className="section-label">// 05. MISSION HISTORY</span>
-          <h2 className="section-heading" data-splitting>
-            Experience
+          <span className="section-label">// 04. CAREER TIMELINE</span>
+          <h2 className="section-heading">
+            Work <span className="accent">Experience</span>
           </h2>
           <ScrollTimeline
             items={EXPERIENCE.map((exp) => ({
@@ -1685,12 +1563,13 @@ export default function Index() {
           />
         </MotionSection>
 
-        {/* ===== ACHIEVEMENTS ===== */}
+        {/* ===== ACHIEVEMENTS & CERTIFICATIONS ===== */}
         <MotionSection className="achievements-section">
-          <span className="section-label">// 06. MILESTONES</span>
-          <h2 className="section-heading" data-splitting>
-            Achievements
+          <span className="section-label">// 05. CREDENTIALS & HONORS</span>
+          <h2 className="section-heading">
+            Verified <span className="accent">Certifications</span>
           </h2>
+
           <div className="achievements-stats">
             {ACHIEVEMENTS_STATS.map((s, i) => (
               <MotionItem key={i} delay={i * 0.1}>
@@ -1703,6 +1582,7 @@ export default function Index() {
               </MotionItem>
             ))}
           </div>
+
           <StaggerContainer className="achievement-cards">
             {ACHIEVEMENT_CARDS.map((a, i) => (
               <motion.div
@@ -1721,6 +1601,12 @@ export default function Index() {
               >
                 <i className={a.icon}></i>
                 <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                      {a.issuer}
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-400">{a.date}</span>
+                  </div>
                   <div className="achievement-card-title">{a.title}</div>
                   <div className="achievement-card-desc">{a.desc}</div>
                 </div>
@@ -1731,9 +1617,9 @@ export default function Index() {
 
         {/* ===== EDUCATION ===== */}
         <MotionSection id="education" className="education-section">
-          <span className="section-label">// 07. KNOWLEDGE BASE</span>
-          <h2 className="section-heading" data-splitting>
-            Education
+          <span className="section-label">// 06. ACADEMIC FOUNDATION</span>
+          <h2 className="section-heading">
+            Education <span className="accent">History</span>
           </h2>
           <ScrollTimeline
             items={EDUCATION.map((edu) => ({
@@ -1742,7 +1628,7 @@ export default function Index() {
               subtitle: edu.institution,
               date: edu.year,
               tags: edu.tags,
-              meta: [{ label: "GPA", value: edu.gpa }],
+              meta: [{ label: "Score", value: edu.gpa }],
               badge: edu.status === "pursuing" ? "PURSUING" : "COMPLETED",
               badgeVariant: edu.status as "pursuing" | "completed",
             }))}
@@ -1751,87 +1637,170 @@ export default function Index() {
 
         {/* ===== CONTACT ===== */}
         <MotionSection id="contact" className="contact-section">
-          <span className="section-label">// 08. GET IN TOUCH</span>
-          <h2 className="section-heading">
-            Contact <span className="accent">Me</span>
-          </h2>
-          <div className="contact-grid">
-            <MotionItem className="contact-info" direction="left">
-              <h3>Let's work together</h3>
-              <p className="contact-desc">
-                I'm currently open to AI/ML engineering roles, internship opportunities, and exciting collaborations.
-                Feel free to reach out — I'd love to hear from you.
-              </p>
-              <div className="contact-links">
-                {[
-                  {
-                    icon: "fa-solid fa-envelope",
-                    label: "Email",
-                    url: "techpavithran18@gmail.com",
-                    href: "mailto:techpavithran18@gmail.com",
-                  },
-                  {
-                    icon: "fa-brands fa-github",
-                    label: "GitHub",
-                    url: "github.com/Pavithran030",
-                    href: "https://github.com/Pavithran030",
-                  },
-                  {
-                    icon: "fa-brands fa-linkedin",
-                    label: "LinkedIn",
-                    url: "linkedin.com/in/pavithran030",
-                    href: "https://www.linkedin.com/in/pavithran030",
-                  },
-                  { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
-                ].map((l, i) => (
-                  <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
-                    <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
-                      <i className={l.icon}></i>
-                      <div>
-                        <span className="link-label">{l.label}</span>
-                        <span className="link-url">{l.url}</span>
-                      </div>
-                    </a>
-                  </MotionItem>
+          <div className="contact-content-wrap">
+            <span className="section-label">// 07. CONNECT WITH ME</span>
+            <h2 className="section-heading">
+              Get in <span className="accent">Touch</span>
+            </h2>
+            <div className="contact-grid">
+              <MotionItem className="contact-info" direction="left">
+                <h3>Let's build something extraordinary</h3>
+                <p className="contact-desc">
+                  I am actively seeking AI/ML engineering roles, software development opportunities, and exciting collaborative projects.
+                  Feel free to drop a message or reach out directly.
+                </p>
+                <div className="contact-links">
+                  {[
+                    {
+                      icon: "fa-solid fa-envelope",
+                      label: "Email",
+                      url: "techpavithran18@gmail.com",
+                      href: "mailto:techpavithran18@gmail.com",
+                    },
+                    {
+                      icon: "fa-brands fa-github",
+                      label: "GitHub",
+                      url: "github.com/Pavithran030",
+                      href: "https://github.com/Pavithran030",
+                    },
+                    {
+                      icon: "fa-brands fa-linkedin",
+                      label: "LinkedIn",
+                      url: "linkedin.com/in/pavithran030",
+                      href: "https://www.linkedin.com/in/pavithran030",
+                    },
+                    { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
+                  ].map((l, i) => (
+                    <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
+                      <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
+                        <i className={l.icon}></i>
+                        <div>
+                          <span className="link-label">{l.label}</span>
+                          <span className="link-url">{l.url}</span>
+                        </div>
+                      </a>
+                    </MotionItem>
+                  ))}
+                </div>
+              </MotionItem>
+
+              <MotionItem direction="right" delay={0.15}>
+                <form className="contact-form" onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label htmlFor="contact-name">Name</label>
+                    <input id="contact-name" type="text" name="name" required placeholder="Your Name" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-email">Email</label>
+                    <input id="contact-email" type="email" name="email" required placeholder="your.email@example.com" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-subject">Subject</label>
+                    <input id="contact-subject" type="text" name="subject" required placeholder="AI/ML Opportunity / Project Collaboration" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact-message">Message</label>
+                    <textarea id="contact-message" name="message" required placeholder="Hi Pavithran, I'd like to talk about..." rows={4}></textarea>
+                  </div>
+                  <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""}`}>
+                    {isSubmitting ? "Sending Message..." : formSent ? "✓ Message Sent Successfully" : "Send Message"}
+                  </button>
+                  {submitError && (
+                    <p className="form-error-msg">
+                      <span>❌</span> {submitError}
+                    </p>
+                  )}
+                </form>
+              </MotionItem>
+            </div>
+          </div>
+
+          {/* ===== FOOTER ===== */}
+          <footer className="footer">
+            <div className="footer-copy">
+              © {new Date().getFullYear()} Pavithran G. Designed with precision & modern aesthetics.
+            </div>
+          </footer>
+        </MotionSection>
+      </div>
+
+      {/* PROJECT DETAILS POPUP MODAL */}
+      {popupProject && (
+        <div className="portfolio-modal-backdrop" onClick={() => setPopupProject(null)}>
+          <div className="portfolio-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="portfolio-modal-close"
+              onClick={() => setPopupProject(null)}
+              aria-label="Close project modal"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+            <div className="portfolio-modal-image-wrap">
+              <img src={popupProject.image} alt={popupProject.title} className="portfolio-modal-image" />
+              <div className="project-mission">MISSION-{popupProject.id}</div>
+              <div className="project-cat-badge">{popupProject.category}</div>
+            </div>
+            <div className="portfolio-modal-content">
+              <h3 className="portfolio-modal-title">{popupProject.title}</h3>
+              <p className="portfolio-modal-desc">{popupProject.desc}</p>
+              <div className="portfolio-modal-tech">
+                {popupProject.tech.map((t) => (
+                  <span key={t}>{t}</span>
                 ))}
               </div>
-            </MotionItem>
-            <MotionItem direction="right" delay={0.15}>
-              <form className="contact-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>Name</label>
-                  <input type="text" name="name" required placeholder="John Doe" />
-                </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input type="email" name="email" required placeholder="john@example.com" />
-                </div>
-                <div className="form-group">
-                  <label>Subject</label>
-                  <input type="text" name="subject" required placeholder="Project inquiry" />
-                </div>
-                <div className="form-group">
-                  <label>Message</label>
-                  <textarea name="message" required placeholder="Tell me about your project..." rows={4}></textarea>
-                </div>
-                <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""} ${isSubmitting ? "submitting" : ""}`}>
-                  {isSubmitting ? "Sending..." : formSent ? "✓ Message Sent" : "Send Message"}
-                </button>
-                {submitError && (
-                  <p className="form-error-msg">
-                    <span>❌</span> {submitError}
-                  </p>
+              <div className="project-links">
+                {popupProject.demo && (
+                  <a href={popupProject.demo} target="_blank" rel="noopener noreferrer" className="project-link-demo">
+                    <ExternalLink size={14} /> LIVE DEMO
+                  </a>
                 )}
-              </form>
-            </MotionItem>
+                {popupProject.source && (
+                  <a href={popupProject.source} target="_blank" rel="noopener noreferrer" className="project-link-code">
+                    <Github size={14} /> SOURCE CODE
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
-        </MotionSection>
+        </div>
+      )}
 
-        {/* ===== FOOTER ===== */}
-        <footer className="footer">
-          <div className="footer-copy">© {new Date().getFullYear()} Pavithran G. All rights reserved.</div>
-        </footer>
-      </div>
+      {/* CERTIFICATE DETAILS POPUP MODAL */}
+      {popupCertificate && (
+        <div className="portfolio-modal-backdrop" onClick={() => setPopupCertificate(null)}>
+          <div className="portfolio-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="portfolio-modal-close"
+              onClick={() => setPopupCertificate(null)}
+              aria-label="Close certificate modal"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+            <div className="portfolio-modal-content" style={{ paddingTop: "32px" }}>
+              <div className="flex items-center gap-3 mb-3">
+                <i className={`${popupCertificate.icon} text-2xl text-emerald-400`}></i>
+                <div>
+                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded">
+                    {popupCertificate.issuer}
+                  </span>
+                  <span className="text-xs font-mono text-slate-400 ml-2">{popupCertificate.date}</span>
+                </div>
+              </div>
+              <h3 className="portfolio-modal-title">{popupCertificate.title}</h3>
+              <p className="portfolio-modal-desc">{popupCertificate.desc}</p>
+              {popupCertificate.skills && (
+                <div className="portfolio-modal-tech mt-4">
+                  {popupCertificate.skills.map((s: string) => (
+                    <span key={s}>{s}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BACK TO TOP */}
       <button className={`back-to-top ${showBackTop ? "visible" : ""}`} onClick={scrollToTop} aria-label="Back to top">
