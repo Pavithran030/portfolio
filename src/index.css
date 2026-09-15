@@ -2339,8 +2339,8 @@ section {
 
 /* ===== FOOTER ===== */
 .footer {
-  margin-top: 40px;
-  padding: 16px var(--section-inline);
+  margin-top: 16px;
+  padding: 8px var(--section-inline);
   border-top: 1px solid hsl(var(--border-line) / 0.4);
   text-align: center;
   background: transparent;
@@ -2351,8 +2351,8 @@ section {
 
 @media (max-width: 768px) {
   .footer {
-    margin-top: 28px;
-    padding: 14px 0 20px;
+    margin-top: 12px;
+    padding: 8px 0;
   }
 }
 
