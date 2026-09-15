@@ -345,6 +345,16 @@ const ACHIEVEMENT_CARDS = [
 
 const EXPERIENCE = [
   {
+    date: "Jun 2026 – Present",
+    role: "Software Developer (Freelance)",
+    company: "Mecandria IT Service and Solutions LLP",
+    bullets: [
+      "Developing and deploying enterprise-level production applications for client customer operations, currently active and live in production",
+      "Architecting end-to-end full-stack solutions, containerized deployment workflows, and performance optimization for mission-critical client systems",
+    ],
+    statusText: "CURRENT",
+  },
+  {
     date: "Feb 2026 – Apr 2026",
     role: "Software Development with AI & ML",
     company: "Mecandria IT Service and Solutions",
@@ -648,7 +658,7 @@ export default function Index() {
       if (!target) return;
 
       const interactiveEl = target.closest(
-        "a, button, [role='button'], input, textarea, select, .project-card, .achievement-card, .skill-card, .nav-link, .nav-btn, .timeline-card, .timeline-dot, .filter-chip, .badge, .project-links a, .project-links button, [data-interactive='true'], [onclick], .copy-btn, .btn, .social-pill, .back-to-top"
+        "a, button, [role='button'], input, textarea, select, .project-card, .project-visual, .achievement-card, .skill-card, .skill-card-item, .nav-link, .nav-btn, .timeline-card, .timeline-dot, .filter-chip, .badge, .project-links a, .project-links button, [data-interactive='true'], [onclick], .copy-btn, .btn, .social-pill, .back-to-top, .popup-close, .portfolio-modal-close, .mobile-menu-close, .hamburger"
       );
 
       const textEl = target.closest("input[type='text'], input[type='email'], textarea");
@@ -1196,21 +1206,6 @@ export default function Index() {
           <div className="hero-grid-pattern"></div>
 
           <div className="hero-text">
-            <div className="hero-subtitle-row">
-              <span className="hero-subtitle-badge">
-                <span className="status-dot"></span>
-                AVAILABLE FOR AI/ML ROLES
-              </span>
-              <span className="hero-subtitle-separator hidden sm:inline">—</span>
-              <span className="hero-subtitle-text hidden sm:inline">K.S.Rangasamy College of Technology</span>
-            </div>
-
-            <div className="hero-role-tag">
-              <span className="hero-role-line"></span>
-              <h2 className="hero-role-label">Backend Developer & AI Engineer</h2>
-              <span className="hero-role-line"></span>
-            </div>
-
             <h1 className="hero-name">
               <span className="hero-name-first">PAVITHRAN</span>
               <span className="hero-name-last">
@@ -1218,6 +1213,12 @@ export default function Index() {
                 G
               </span>
             </h1>
+
+            <div className="hero-role-tag">
+              <span className="hero-role-line"></span>
+              <h2 className="hero-role-label">Backend Developer & AI Engineer</h2>
+              <span className="hero-role-line"></span>
+            </div>
 
             <p className="hero-description">
               Crafting production-ready AI architectures, Agentic RAG engines, computer vision systems & automation workflows.
@@ -1558,7 +1559,12 @@ export default function Index() {
               date: exp.date,
               bullets: exp.bullets,
               badge: exp.statusText,
-              badgeVariant: "completed" as const,
+              badgeVariant:
+                exp.statusText === "CURRENT" ||
+                exp.statusText === "PRESENT" ||
+                exp.statusText === "IN PROGRESS"
+                  ? ("pursuing" as const)
+                  : ("completed" as const),
             }))}
           />
         </MotionSection>
@@ -1637,91 +1643,95 @@ export default function Index() {
 
         {/* ===== CONTACT ===== */}
         <MotionSection id="contact" className="contact-section">
-          <div className="contact-content-wrap">
-            <span className="section-label">// 07. CONNECT WITH ME</span>
-            <h2 className="section-heading">
-              Get in <span className="accent">Touch</span>
-            </h2>
-            <div className="contact-grid">
-              <MotionItem className="contact-info" direction="left">
-                <h3>Let's build something extraordinary</h3>
-                <p className="contact-desc">
-                  I am actively seeking AI/ML engineering roles, software development opportunities, and exciting collaborative projects.
-                  Feel free to drop a message or reach out directly.
-                </p>
-                <div className="contact-links">
-                  {[
-                    {
-                      icon: "fa-solid fa-envelope",
-                      label: "Email",
-                      url: "techpavithran18@gmail.com",
-                      href: "mailto:techpavithran18@gmail.com",
-                    },
-                    {
-                      icon: "fa-brands fa-github",
-                      label: "GitHub",
-                      url: "github.com/Pavithran030",
-                      href: "https://github.com/Pavithran030",
-                    },
-                    {
-                      icon: "fa-brands fa-linkedin",
-                      label: "LinkedIn",
-                      url: "linkedin.com/in/pavithran030",
-                      href: "https://www.linkedin.com/in/pavithran030",
-                    },
-                    { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
-                  ].map((l, i) => (
-                    <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
-                      <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
-                        <i className={l.icon}></i>
-                        <div>
-                          <span className="link-label">{l.label}</span>
-                          <span className="link-url">{l.url}</span>
-                        </div>
-                      </a>
-                    </MotionItem>
-                  ))}
+          <span className="section-label">// 07. CONNECT WITH ME</span>
+          <h2 className="section-heading">
+            Get in <span className="accent">Touch</span>
+          </h2>
+          <div className="contact-grid">
+            <MotionItem className="contact-info" direction="left">
+              <h3>Let's build something extraordinary</h3>
+              <p className="contact-desc">
+                I am actively seeking AI/ML engineering roles, software development opportunities, and exciting collaborative projects.
+                Feel free to drop a message or reach out directly.
+              </p>
+              <div className="contact-links">
+                {[
+                  {
+                    icon: "fa-solid fa-envelope",
+                    label: "Email",
+                    url: "techpavithran18@gmail.com",
+                    href: "mailto:techpavithran18@gmail.com",
+                  },
+                  {
+                    icon: "fa-brands fa-github",
+                    label: "GitHub",
+                    url: "github.com/Pavithran030",
+                    href: "https://github.com/Pavithran030",
+                  },
+                  {
+                    icon: "fa-brands fa-linkedin",
+                    label: "LinkedIn",
+                    url: "linkedin.com/in/pavithran030",
+                    href: "https://www.linkedin.com/in/pavithran030",
+                  },
+                  { icon: "fa-solid fa-phone", label: "Phone", url: "+91 9363575964", href: "tel:+919363575964" },
+                ].map((l, i) => (
+                  <MotionItem key={i} className="contact-link-row-wrapper" delay={i * 0.08} direction="left">
+                    <a className="contact-link-row" href={l.href} target="_blank" rel="noopener noreferrer">
+                      <i className={l.icon}></i>
+                      <div>
+                        <span className="link-label">{l.label}</span>
+                        <span className="link-url">{l.url}</span>
+                      </div>
+                    </a>
+                  </MotionItem>
+                ))}
+              </div>
+            </MotionItem>
+
+            <MotionItem direction="right" delay={0.15}>
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="contact-name">Name</label>
+                  <input id="contact-name" type="text" name="name" required placeholder="Your Name" />
                 </div>
-              </MotionItem>
-
-              <MotionItem direction="right" delay={0.15}>
-                <form className="contact-form" onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="contact-name">Name</label>
-                    <input id="contact-name" type="text" name="name" required placeholder="Your Name" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="contact-email">Email</label>
-                    <input id="contact-email" type="email" name="email" required placeholder="your.email@example.com" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="contact-subject">Subject</label>
-                    <input id="contact-subject" type="text" name="subject" required placeholder="AI/ML Opportunity / Project Collaboration" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="contact-message">Message</label>
-                    <textarea id="contact-message" name="message" required placeholder="Hi Pavithran, I'd like to talk about..." rows={4}></textarea>
-                  </div>
-                  <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""}`}>
-                    {isSubmitting ? "Sending Message..." : formSent ? "✓ Message Sent Successfully" : "Send Message"}
-                  </button>
-                  {submitError && (
-                    <p className="form-error-msg">
-                      <span>❌</span> {submitError}
-                    </p>
-                  )}
-                </form>
-              </MotionItem>
-            </div>
+                <div className="form-group">
+                  <label htmlFor="contact-email">Email</label>
+                  <input id="contact-email" type="email" name="email" required placeholder="your.email@example.com" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="contact-subject">Subject</label>
+                  <input id="contact-subject" type="text" name="subject" required placeholder="AI/ML Opportunity / Project Collaboration" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="contact-message">Message</label>
+                  <textarea id="contact-message" name="message" required placeholder="Hi Pavithran, I'd like to talk about..." rows={4}></textarea>
+                </div>
+                <button type="submit" disabled={isSubmitting} className={`btn-submit ${formSent ? "sent" : ""}`}>
+                  {isSubmitting ? "Sending Message..." : formSent ? "✓ Message Sent Successfully" : "Send Message"}
+                </button>
+                {submitError && (
+                  <p className="form-error-msg">
+                    <span>❌</span> {submitError}
+                  </p>
+                )}
+              </form>
+            </MotionItem>
           </div>
-
-          {/* ===== FOOTER ===== */}
-          <footer className="footer">
-            <div className="footer-copy">
-              © {new Date().getFullYear()} Pavithran G. Designed with precision & modern aesthetics.
-            </div>
-          </footer>
         </MotionSection>
+
+        {/* ===== FOOTER ===== */}
+        <footer className="footer">
+          <div className="footer-inner">
+            <span className="footer-copy">
+              © {new Date().getFullYear()} Pavithran G. All rights reserved.
+            </span>
+            <span className="footer-bullet" aria-hidden="true">•</span>
+            <span className="footer-note">
+              AI & ML Engineer • Designed & Engineered with precision
+            </span>
+          </div>
+        </footer>
       </div>
 
       {/* PROJECT DETAILS POPUP MODAL */}
