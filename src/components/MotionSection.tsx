@@ -10,17 +10,17 @@ interface MotionSectionProps {
 
 export function MotionSection({ children, className = "", id, delay = 0 }: MotionSectionProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-50px 0px -50px 0px" });
+  const isInView = useInView(ref, { once: true, margin: "-40px 0px" });
 
   return (
     <motion.section
       ref={ref}
       id={id}
       className={className}
-      initial={{ opacity: 1, y: 56, scale: 0.985 }}
-      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 56, scale: 0.985 }}
+      initial={{ opacity: 1, y: 30, scale: 0.99 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 30, scale: 0.99 }}
       transition={{
-        duration: 1.05,
+        duration: 0.8,
         delay,
         ease: [0.22, 1, 0.36, 1],
       }}
@@ -43,10 +43,10 @@ interface MotionItemProps {
 
 export function MotionItem({ children, className = "", delay = 0, direction = "up", style, onClick, onMouseMove, onMouseLeave }: MotionItemProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-30px 0px -30px 0px" });
+  const isInView = useInView(ref, { once: true, margin: "-20px 0px" });
 
-  const initialX = direction === "left" ? -50 : direction === "right" ? 50 : 0;
-  const initialY = direction === "up" ? 40 : 0;
+  const initialX = direction === "left" ? -35 : direction === "right" ? 35 : 0;
+  const initialY = direction === "up" ? 25 : 0;
 
   return (
     <motion.div
@@ -59,7 +59,7 @@ export function MotionItem({ children, className = "", delay = 0, direction = "u
       initial={{ opacity: 0, x: initialX, y: initialY }}
       animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: initialX, y: initialY }}
       transition={{
-        duration: 0.7,
+        duration: 0.6,
         delay,
         ease: [0.16, 1, 0.3, 1],
       }}
@@ -77,7 +77,7 @@ interface StaggerContainerProps {
 
 export function StaggerContainer({ children, className = "" }: StaggerContainerProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-30px 0px -30px 0px" });
+  const isInView = useInView(ref, { once: true, margin: "-20px 0px" });
 
   return (
     <motion.div
@@ -89,7 +89,7 @@ export function StaggerContainer({ children, className = "" }: StaggerContainerP
         hidden: {},
         visible: {
           transition: {
-            staggerChildren: 0.06,
+            staggerChildren: 0.05,
           },
         },
       }}
@@ -99,15 +99,3 @@ export function StaggerContainer({ children, className = "" }: StaggerContainerP
   );
 }
 
-export const staggerChildVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-    },
-  },
-};
