@@ -681,7 +681,7 @@ canvas {
   overflow-x: hidden;
 }
 
-section {
+.content-wrapper section {
   position: relative;
   padding: 90px clamp(20px, 4vw, 64px);
   width: 100%;
