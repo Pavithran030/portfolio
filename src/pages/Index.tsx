@@ -481,6 +481,9 @@ export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
   
   // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
@@ -498,6 +501,16 @@ export default function Index() {
 
   const cursorRingRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
+
+  // Mobile-only flag: project cards slide in from alternating sides on small screens.
+  // Desktop is untouched - it keeps the GSAP pinned horizontal scroll.
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const loaderBarRef = useRef<HTMLDivElement>(null);
   const loaderTextRef = useRef<HTMLSpanElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
@@ -1493,9 +1506,13 @@ export default function Index() {
                   <motion.div
                     className="project-card project-card-horizontal"
                     key={p.id}
-                    initial={{ opacity: 0, y: 32, scale: 0.96 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "-30px", amount: 0.12 }}
+                    initial={
+                      isMobile
+                        ? { opacity: 0, x: idx % 2 === 0 ? -80 : 80, scale: 0.94 }
+                        : { opacity: 0, y: 32, scale: 0.96 }
+                    }
+                    whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-40px", amount: 0.15 }}
                     transition={{
                       duration: 0.65,
                       delay: Math.min(idx * 0.08, 0.25),
