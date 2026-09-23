@@ -237,7 +237,7 @@ Key Architectural Capabilities:
 const ACHIEVEMENTS_STATS = [
   { value: 200, suffix: "+", label: "LeetCode Solved" },
   { value: 3, suffix: "+", label: "Internships Completed" },
-  { value: 11, suffix: "", label: "Verified Credentials" },
+  { value: 12, suffix: "", label: "Verified Credentials" },
   { value: 5, suffix: "+", label: "AI & ML Projects" },
 ];
 
@@ -251,6 +251,17 @@ const ACHIEVEMENT_CARDS = [
     credentialId: "REDIS-ASSOC-2026",
     credentialUrl: "https://university.redis.com/certificates/",
     imageUrl: "/certificates/Redis_Associate_Developer.png",
+    pdfUrl: "",
+  },
+  {
+    icon: "fa-solid fa-cloud",
+    title: "Redis Associate Cloud Operator",
+    desc: "Earned the globally recognized Redis Associate Cloud Operator certification, validating expertise in deploying, managing, and operating Redis Cloud infrastructure for scalable, high-availability distributed systems.",
+    issuer: "Redis",
+    date: "September 17, 2026",
+    credentialId: "194406109",
+    credentialUrl: "https://university.redis.com/certificates/",
+    imageUrl: "/certificates/Redis_Associate_Cloud_Operator.png",
     pdfUrl: "",
   },
   {
