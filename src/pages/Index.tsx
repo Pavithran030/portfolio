@@ -356,6 +356,16 @@ const ACHIEVEMENT_CARDS = [
 
 const EXPERIENCE = [
   {
+    date: "Jun 2026 – Present",
+    role: "Software Developer (Freelance)",
+    company: "Mecandria IT Service and Solutions LLP",
+    bullets: [
+      "Developing and deploying enterprise-level production applications for client customer operations, currently active and live in production",
+      "Architecting end-to-end full-stack solutions, containerized deployment workflows, and performance optimization for mission-critical client systems",
+    ],
+    statusText: "CURRENT",
+  },
+  {
     date: "Feb 2026 – Apr 2026",
     role: "Software Development with AI & ML",
     company: "Mecandria IT Service and Solutions",
@@ -390,30 +400,30 @@ const EXPERIENCE = [
 const EDUCATION = [
   {
     initial: "K",
-    degree: "B.E. — Artificial Intelligence & Data Science / Machine Learning",
-    institution: "K.S.Rangasamy College of Technology",
-    year: "2022 – 2026",
-    gpa: "7.73 CGPA",
+    degree: "B.E. CSE(AI & ML)",
+    institution: "K.S. Rangasamy College of Technology, Tiruchengode",
+    year: "2023 — 2027",
+    gpa: "CGPA: 8.95 (upto 6th sem)",
     status: "pursuing",
-    tags: ["Machine Learning", "Deep Learning", "Data Structures", "Computer Vision", "DBMS"],
+    tags: ["Machine Learning", "Deep Learning", "Computer Vision", "NLP"],
   },
   {
     initial: "S",
-    degree: "Higher Secondary Certificate (HSC)",
-    institution: "Spk Matriculation Higher Secondary School",
-    year: "2021 – 2022",
-    gpa: "84.5%",
+    degree: "HSC (Higher Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021 — 2023",
+    gpa: "90%",
     status: "completed",
-    tags: ["Computer Science", "Mathematics", "Physics", "Chemistry"],
+    tags: ["Physics", "Chemistry", "Mathematics", "Computer Science"],
   },
   {
     initial: "S",
-    degree: "Secondary School Leaving Certificate (SSLC)",
-    institution: "Spk Matriculation Higher Secondary School",
-    year: "2019 – 2020",
-    gpa: "75.2%",
+    degree: "SSLC (Secondary)",
+    institution: "Sengunthar Matriculation Hr. Sec. School, Tharamangalam",
+    year: "2021",
+    gpa: "100%",
     status: "completed",
-    tags: ["Mathematics", "Science", "English"],
+    tags: ["Science", "Mathematics", "English", "Tamil"],
   },
 ];
 
@@ -423,7 +433,7 @@ const SOCIAL_ICONS = [
   { icon: "fa-solid fa-code", url: "https://codolio.com/profile/Pavithran030", tooltip: "Codolio" },
 ];
 
-const NAVBAR_HEIGHT = 80;
+const NAVBAR_HEIGHT = 72;
 
 type VantaEffectInstance = {
   destroy?: () => void;
@@ -482,11 +492,13 @@ export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackTop, setShowBackTop] = useState(false);
   const [activeNav, setActiveNav] = useState("home");
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
   
-  // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally until end)
+  // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
   const projectsScrollRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Contact & feedback
   const [copiedEmail, setCopiedEmail] = useState(false);
@@ -500,6 +512,16 @@ export default function Index() {
 
   const cursorRingRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
+
+  // Mobile-only flag: project cards slide in from alternating sides on small screens.
+  // Desktop is untouched - it keeps the GSAP pinned horizontal scroll.
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const loaderBarRef = useRef<HTMLDivElement>(null);
   const loaderTextRef = useRef<HTMLSpanElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
@@ -623,6 +645,7 @@ export default function Index() {
 
     lenis.on("scroll", () => {
       ScrollTrigger.update();
+      window.dispatchEvent(new Event("scroll"));
     });
 
     const raf = (time: number) => {
@@ -637,7 +660,7 @@ export default function Index() {
     };
   }, [loaded, revealGone]);
 
-  // ===== DESKTOP CURSOR FOLLOW =====
+  // ===== APPLE-STYLE FLUID CURSOR FOLLOW & INTERACTIVE HOVER =====
   useEffect(() => {
     if (!loaded || !revealGone || window.innerWidth <= 768) return;
 
@@ -646,6 +669,8 @@ export default function Index() {
     if (!ring || !dot) return;
 
     let hasMoved = false;
+    let isHovering = false;
+    let isTextHover = false;
 
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
@@ -657,6 +682,44 @@ export default function Index() {
         dotPos.current = { x: e.clientX, y: e.clientY };
         ring.classList.add("visible");
         dot.classList.add("visible");
+      }
+      if (cursorRingRef.current?.classList.contains("hidden")) {
+        cursorRingRef.current.classList.remove("hidden");
+        cursorDotRef.current?.classList.remove("hidden");
+      }
+    };
+
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const interactiveEl = target.closest(
+        "a, button, [role='button'], input, textarea, select, .project-card, .project-visual, .achievement-card, .skill-card, .skill-card-item, .nav-link, .nav-btn, .timeline-card, .timeline-dot, .filter-chip, .badge, .project-links a, .project-links button, [data-interactive='true'], [onclick], .copy-btn, .btn, .social-pill, .back-to-top, .popup-close, .portfolio-modal-close, .mobile-menu-close, .hamburger"
+      );
+
+      const textEl = target.closest("input[type='text'], input[type='email'], textarea");
+
+      if (textEl) {
+        isTextHover = true;
+        isHovering = false;
+        cursorRingRef.current?.classList.add("text-hover");
+        cursorDotRef.current?.classList.add("text-hover");
+        cursorRingRef.current?.classList.remove("hovering");
+        cursorDotRef.current?.classList.remove("hovering");
+      } else if (interactiveEl) {
+        isHovering = true;
+        isTextHover = false;
+        cursorRingRef.current?.classList.add("hovering");
+        cursorDotRef.current?.classList.add("hovering");
+        cursorRingRef.current?.classList.remove("text-hover");
+        cursorDotRef.current?.classList.remove("text-hover");
+      } else {
+        if (isHovering || isTextHover) {
+          isHovering = false;
+          isTextHover = false;
+          cursorRingRef.current?.classList.remove("hovering", "text-hover");
+          cursorDotRef.current?.classList.remove("hovering", "text-hover");
+        }
       }
     };
 
@@ -708,7 +771,18 @@ export default function Index() {
       }
     };
 
-    window.addEventListener("mousemove", onMouseMove);
+    const onMouseLeave = () => {
+      cursorRingRef.current?.classList.add("hidden");
+      cursorDotRef.current?.classList.add("hidden");
+    };
+
+    const onMouseEnter = () => {
+      cursorRingRef.current?.classList.remove("hidden");
+      cursorDotRef.current?.classList.remove("hidden");
+    };
+
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mouseover", onMouseOver, { passive: true });
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mouseleave", onDocMouseLeave);
@@ -717,13 +791,10 @@ export default function Index() {
 
     let rafId: number;
     const tick = () => {
-      // Dot: fast, tight follow. Still smoothed (rather than snapping
-      // straight to the raw mousemove coordinate) so it stays in lockstep
-      // with the ring on the same animation-frame clock instead of the two
-      // visibly tearing apart at speed.
+      // Dot: fast, tight follow.
       dotPos.current.x += (mousePos.current.x - dotPos.current.x) * 0.5;
       dotPos.current.y += (mousePos.current.y - dotPos.current.y) * 0.5;
-      // Ring: slower trailing follow for the classic dual-cursor feel.
+      // Ring: slower trailing follow.
       ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.15;
       ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.15;
 
@@ -738,6 +809,7 @@ export default function Index() {
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseover", onMouseOver);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mouseleave", onDocMouseLeave);
@@ -751,10 +823,6 @@ export default function Index() {
   useEffect(() => {
     const isOverlayOpen = mobileMenuOpen || !!popupProject || !!popupCertificate;
     if (isOverlayOpen) {
-      // `overflow: hidden` removes the scrollbar, which reflows the page
-      // width and instantly jumps the scroll position right as the popup
-      // opens. Freezing the body in place with `position: fixed` at its
-      // current offset avoids that reflow-triggered jump entirely.
       const y = window.scrollY;
       scrollLockYRef.current = y;
       document.body.style.position = "fixed";
@@ -762,9 +830,6 @@ export default function Index() {
       document.body.style.left = "0";
       document.body.style.right = "0";
       document.body.style.width = "100%";
-      // Lenis intercepts wheel/touch input at the window level regardless of
-      // what's under the cursor, so without pausing it, scrolling over an
-      // open popup still scrolled the page behind it.
       lenisRef.current?.stop();
     } else {
       document.body.style.position = "";
@@ -786,24 +851,58 @@ export default function Index() {
 
   // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION =====
   useEffect(() => {
+    const bgLayer = document.querySelector(".bg-transition-layer") as HTMLElement | null;
+
     const onScroll = () => {
       const y = window.scrollY;
-      setNavScrolled(y > 50);
-      setShowBackTop(y > 400);
+      setNavScrolled(y > 40);
+      setShowBackTop(y > 360);
 
-      // Active section detection
-      const sections = NAV_LINKS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-      const scrollPos = y + 180;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const sec = sections[i];
-        if (sec && sec.offsetTop <= scrollPos) {
-          setActiveNav(sec.id);
-          break;
+      // Section Background Color Mapping
+      if (bgLayer) {
+        for (let i = SECTION_BG_COLORS.length - 1; i >= 0; i--) {
+          const item = SECTION_BG_COLORS[i];
+          const el = document.querySelector(item.section) as HTMLElement | null;
+          if (el) {
+            const top = el.getBoundingClientRect().top + y;
+            if (top <= y + window.innerHeight * 0.45) {
+              bgLayer.style.backgroundColor = item.color;
+              break;
+            }
+          }
+        }
+      }
+
+      // Check if user has reached bottom of document (activates contact)
+      const isBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 70;
+      if (isBottom) {
+        setActiveNav("contact");
+        return;
+      }
+
+      // Check if user is at top of document (activates home)
+      if (y < 100) {
+        setActiveNav("home");
+        return;
+      }
+
+      // Accurate active section detection using exact getBoundingClientRect offsets
+      const scrollPos = y + NAVBAR_HEIGHT + 80;
+      for (let i = NAV_LINKS.length - 1; i >= 0; i--) {
+        const id = NAV_LINKS[i];
+        const sec = document.getElementById(id);
+        if (sec) {
+          const top = sec.getBoundingClientRect().top + y;
+          if (top <= scrollPos) {
+            setActiveNav(id);
+            break;
+          }
         }
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -818,7 +917,8 @@ export default function Index() {
   const scrollToSection = useCallback((id: string, smooth = true) => {
     const section = document.getElementById(id);
     if (!section) return;
-    const offset = id === "home" ? 0 : NAVBAR_HEIGHT;
+    setActiveNav(id);
+    const offset = id === "home" ? 0 : NAVBAR_HEIGHT + 12;
     const top = Math.max(section.getBoundingClientRect().top + window.scrollY - offset, 0);
     window.history.replaceState(null, "", id === "home" ? window.location.pathname : `#${id}`);
     if (lenisRef.current && smooth) {
@@ -829,80 +929,84 @@ export default function Index() {
     setMobileMenuOpen(false);
   }, []);
 
-  // ===== PINNED NORMAL SCROLL TO HORIZONTAL TRANSLATION FOR PROJECTS =====
+  // Hash Navigation Handler on first load
+  useEffect(() => {
+    if (!loaded || !revealGone) return;
+    const hash = window.location.hash.replace("#", "");
+    if (hash && NAV_LINKS.includes(hash)) {
+      setTimeout(() => {
+        scrollToSection(hash, true);
+      }, 200);
+    }
+  }, [loaded, revealGone, scrollToSection]);
+
+  // ===== PROJECTS HORIZONTAL SCROLL (desktop only) =====
   useEffect(() => {
     if (!loaded || !revealGone) return;
 
-    const container = projectsContainerRef.current;
-    const track = projectsScrollRef.current;
-    if (!container || !track) return;
+    let ctx: gsap.Context | null = null;
 
-    // Small delay to ensure layout measurements are exact after render
-    const timer = setTimeout(() => {
-      let ctx: gsap.Context | null = null;
+    const setupProjectsScroll = () => {
+      ctx?.revert();
 
-      if (window.innerWidth > 768) {
-        // Desktop / Laptop: Pin the section and map vertical page scroll to horizontal travel.
-        // Distance math ported as-is from the main branch's ProjectsHorizontalScroll: measure
-        // against the clipping wrapper (.projects-viewport-mask), not the track itself — the
-        // track is `width: max-content` and unclipped, so its own clientWidth always equals
-        // its scrollWidth and would report a distance of 0.
-        const wrapper = container.querySelector(".projects-viewport-mask") as HTMLElement | null;
-        const wrapperStyles = wrapper ? window.getComputedStyle(wrapper) : null;
-        const padLeft = wrapperStyles ? parseFloat(wrapperStyles.paddingLeft) || 0 : 0;
-        const padRight = wrapperStyles ? parseFloat(wrapperStyles.paddingRight) || 0 : 0;
-        const trackViewportWidth = (wrapper ? wrapper.clientWidth : track.clientWidth) - padLeft - padRight;
-        const cards = track.querySelectorAll<HTMLElement>(".project-card");
-        const lastCard = cards[cards.length - 1];
-        const byTrackWidth = Math.max(track.scrollWidth - trackViewportWidth, 0);
-        const byLastCard = lastCard
-          ? Math.max(lastCard.offsetLeft + lastCard.offsetWidth - trackViewportWidth, 0)
-          : 0;
-        const scrollDistance = Math.max(byTrackWidth, byLastCard);
+      // ---- PROJECTS HORIZONTAL SCROLL (desktop only) ----
+      const isMobile = window.innerWidth <= 768;
+      const projectsTrack = document.querySelector(".projects-track") as HTMLElement | null;
+      const projectsSection = document.getElementById("projects");
+      if (projectsTrack && projectsSection && !isMobile) {
+        const projectsWrapper = projectsSection.querySelector(".projects-pin-wrapper") as HTMLElement | null;
+        if (projectsWrapper) {
+          const wrapperStyles = window.getComputedStyle(projectsWrapper);
+          const padLeft = parseFloat(wrapperStyles.paddingLeft) || 0;
+          const padRight = parseFloat(wrapperStyles.paddingRight) || 0;
+          const trackViewportWidth = projectsWrapper.clientWidth - padLeft - padRight;
+          const cards = projectsTrack.querySelectorAll<HTMLElement>(".project-card");
+          const lastCard = cards[cards.length - 1];
+          const byTrackWidth = Math.max(projectsTrack.scrollWidth - trackViewportWidth, 0);
+          const byLastCard = lastCard
+            ? Math.max(lastCard.offsetLeft + lastCard.offsetWidth - trackViewportWidth, 0)
+            : 0;
+          const translateDistance = Math.max(byTrackWidth, byLastCard);
 
-        if (scrollDistance > 0) {
-          ctx = gsap.context(() => {
-            gsap.to(track, {
-              x: -scrollDistance,
-              ease: "none",
-              scrollTrigger: {
-                trigger: container,
-                start: "top top",
-                end: () => `+=${scrollDistance}`,
-                scrub: true,
-                pin: true,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-                onUpdate: (self) => {
-                  setScrollProgress(Math.round(self.progress * 100));
+          if (translateDistance > 0) {
+            ctx = gsap.context(() => {
+              gsap.to(projectsTrack, {
+                x: -translateDistance,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: projectsSection,
+                  start: "top top",
+                  end: () => `+=${translateDistance}`,
+                  scrub: true,
+                  pin: true,
+                  anticipatePin: 1,
+                  invalidateOnRefresh: true,
                 },
-              },
-            });
-          }, container);
-        } else {
-          setScrollProgress(100);
-        }
-      } else {
-        // Mobile / Small touch devices: smooth native scroll with live progress tracking
-        const onMobileScroll = () => {
-          const max = track.scrollWidth - track.clientWidth;
-          if (max > 0) {
-            setScrollProgress(Math.min(100, Math.max(0, (track.scrollLeft / max) * 100)));
+              });
+            }, projectsSection);
+
+            (ScrollTrigger as unknown as { refresh?: () => void }).refresh?.();
           }
-        };
-        track.addEventListener("scroll", onMobileScroll, { passive: true });
-        return () => track.removeEventListener("scroll", onMobileScroll);
+        }
+      } else if (projectsTrack) {
+        gsap.set(projectsTrack, { clearProps: "all" });
       }
 
       ScrollTrigger.refresh();
+    };
 
-      return () => {
-        ctx?.revert();
-      };
-    }, 150);
+    const timer = setTimeout(setupProjectsScroll, 150);
+
+    const onResize = () => {
+      setupProjectsScroll();
+    };
+
+    window.addEventListener("resize", onResize);
 
     return () => {
       clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+      ctx?.revert();
     };
   }, [loaded, revealGone]);
 
@@ -1210,15 +1314,6 @@ export default function Index() {
           <div className="hero-grid-pattern"></div>
 
           <div className="hero-text">
-            <div className="hero-subtitle-row">
-              <span className="hero-subtitle-badge">
-                <span className="status-dot"></span>
-                AVAILABLE FOR AI/ML ROLES
-              </span>
-              <span className="hero-subtitle-separator hidden sm:inline">—</span>
-              <span className="hero-subtitle-text hidden sm:inline">K.S.Rangasamy College of Technology</span>
-            </div>
-
             <h1 className="hero-name">
               <span className="hero-name-first">PAVITHRAN</span>
               <span className="hero-name-last">
@@ -1229,7 +1324,7 @@ export default function Index() {
 
             <div className="hero-role-tag">
               <span className="hero-role-line"></span>
-              <span className="hero-role-label">Backend Developer & AI Engineer</span>
+              <h2 className="hero-role-label">Backend Developer & AI Engineer</h2>
               <span className="hero-role-line"></span>
             </div>
 
@@ -1480,23 +1575,47 @@ export default function Index() {
 
         {/* ===== PROJECTS ===== */}
         <section id="projects" ref={projectsContainerRef} className="projects-section-pinned">
-          <div className="projects-inner-wrap">
-            <span className="section-label">// 03. FEATURED WORK</span>
-            <h2 className="section-heading">
-              Featured <span className="accent">Projects</span>
-            </h2>
+          <div className="projects-inner-wrap projects-pin-wrapper">
+            <div className="projects-header-top">
+              <div>
+                <span className="section-label">// 03. FEATURED WORK</span>
+                <h2 className="section-heading">
+                  Featured <span className="accent">Projects</span>
+                </h2>
+              </div>
+              <div className="projects-header-meta">
+                <span className="projects-count-badge">
+                  <span className="projects-count-dot"></span>
+                  {PROJECTS.length} PRODUCTION APPS
+                </span>
+              </div>
+            </div>
 
-            {/* Horizontal Scroll Track (pinned translation container) */}
+            {/* Horizontal Scroll Track on desktop / Clean vertical cards on mobile */}
             <div className="projects-viewport-mask">
               <div
                 ref={projectsScrollRef}
-                className="projects-horizontal-track"
+                className="projects-horizontal-track projects-track"
               >
-                {PROJECTS.map((p) => (
-                  <div
+                {PROJECTS.map((p, idx) => (
+                  <motion.div
                     className="project-card project-card-horizontal"
                     key={p.id}
+                    initial={
+                      isMobile
+                        ? { opacity: 0, x: idx % 2 === 0 ? -80 : 80, scale: 0.94 }
+                        : { opacity: 0, y: 32, scale: 0.96 }
+                    }
+                    whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-40px", amount: 0.15 }}
+                    transition={{
+                      duration: 0.65,
+                      delay: Math.min(idx * 0.08, 0.25),
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    whileTap={{ scale: 0.985 }}
                   >
+                    <div className="project-card-glow" />
                     <div className="project-visual" onClick={() => setPopupProject(p)}>
                       <img src={p.image} alt={p.title} className="project-image" loading="lazy" />
                       <div className="project-image-overlay">
@@ -1515,37 +1634,25 @@ export default function Index() {
                         {p.tech.length > 4 && <span>+{p.tech.length - 4}</span>}
                       </div>
                       <div className="project-links">
-                        {p.demo ? (
+                        {p.demo && (
                           <a href={p.demo} target="_blank" rel="noopener noreferrer" className="project-link-demo">
-                            <ExternalLink size={13} /> DEMO
+                            <ExternalLink size={13} /> LIVE DEMO
                           </a>
-                        ) : (
-                          <button type="button" onClick={() => setPopupProject(p)} className="project-link-demo">
-                            DETAILS
-                          </button>
                         )}
                         {p.source ? (
                           <a href={p.source} target="_blank" rel="noopener noreferrer" className="project-link-code">
-                            <Github size={13} /> CODE
+                            <Code2 size={13} /> SOURCE CODE
                           </a>
                         ) : (
                           <button type="button" onClick={() => setPopupProject(p)} className="project-link-code">
-                            DETAILS
+                            <ExternalLink size={13} /> DETAILS
                           </button>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-
-            {/* Scroll Progress Bar Indicator */}
-            <div className="projects-scroll-progress-container">
-              <div
-                className="projects-scroll-progress-thumb"
-                style={{ width: `${Math.max(16, scrollProgress)}%` }}
-              ></div>
             </div>
           </div>
         </section>
@@ -1564,7 +1671,12 @@ export default function Index() {
               date: exp.date,
               bullets: exp.bullets,
               badge: exp.statusText,
-              badgeVariant: "completed" as const,
+              badgeVariant:
+                exp.statusText === "CURRENT" ||
+                exp.statusText === "PRESENT" ||
+                exp.statusText === "IN PROGRESS"
+                  ? ("pursuing" as const)
+                  : ("completed" as const),
             }))}
           />
         </MotionSection>
@@ -1722,8 +1834,14 @@ export default function Index() {
 
         {/* ===== FOOTER ===== */}
         <footer className="footer">
-          <div className="footer-copy">
-            © {new Date().getFullYear()} Pavithran G. Designed with precision & modern aesthetics.
+          <div className="footer-inner">
+            <span className="footer-copy">
+              © {new Date().getFullYear()} Pavithran G. All rights reserved.
+            </span>
+            <span className="footer-bullet" aria-hidden="true">•</span>
+            <span className="footer-note">
+              AI & ML Engineer • Designed & Engineered with precision
+            </span>
           </div>
         </footer>
       </div>
