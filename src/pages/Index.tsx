@@ -79,7 +79,6 @@ declare const ScrollTrigger: {
 };
 declare const ScrollToPlugin: unknown;
 declare const TextPlugin: unknown;
-declare const Splitting: (options: { target: string; by: string }) => void;
 
 const SECTION_BG_COLORS = [
   { section: "#home", color: "hsl(var(--bg-void))" },

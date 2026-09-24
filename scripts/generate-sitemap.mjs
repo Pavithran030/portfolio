@@ -5,7 +5,7 @@ const siteUrl = "https://pavithraninfo.dev";
 
 // Add future public routes here when the portfolio grows.
 const routes = [
-  { path: "/", changefreq: "daily", priority: "1.0" },
+  { path: "/", changefreq: "weekly", priority: "1.0" },
 ];
 
 const now = new Date().toISOString().split("T")[0];
