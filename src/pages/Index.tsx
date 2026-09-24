@@ -243,17 +243,6 @@ const ACHIEVEMENTS_STATS = [
 
 const ACHIEVEMENT_CARDS = [
   {
-    icon: "fa-solid fa-trophy",
-    title: "Redis Certified Associate Developer",
-    desc: "Earned the official Redis Certified Associate Developer credential, demonstrating mastery of in-memory data structures, caching architectures, and high-performance streaming pipelines.",
-    issuer: "Redis",
-    date: "March 2026",
-    credentialId: "REDIS-ASSOC-2026",
-    credentialUrl: "https://university.redis.com/certificates/",
-    imageUrl: "/certificates/Redis_Associate_Developer.png",
-    pdfUrl: "",
-  },
-  {
     icon: "fa-solid fa-cloud",
     title: "Redis Associate Cloud Operator",
     desc: "Earned the globally recognized Redis Associate Cloud Operator certification, validating expertise in deploying, managing, and operating Redis Cloud infrastructure for scalable, high-availability distributed systems.",
@@ -262,6 +251,17 @@ const ACHIEVEMENT_CARDS = [
     credentialId: "194406109",
     credentialUrl: "https://university.redis.com/certificates/",
     imageUrl: "/certificates/Redis_Associate_Cloud_Operator.png",
+    pdfUrl: "",
+  },
+  {
+    icon: "fa-solid fa-trophy",
+    title: "Redis Certified Associate Developer",
+    desc: "Earned the official Redis Certified Associate Developer credential, demonstrating mastery of in-memory data structures, caching architectures, and high-performance streaming pipelines.",
+    issuer: "Redis",
+    date: "March 2026",
+    credentialId: "REDIS-ASSOC-2026",
+    credentialUrl: "https://university.redis.com/certificates/",
+    imageUrl: "/certificates/Redis_Associate_Developer.png",
     pdfUrl: "",
   },
   {
@@ -495,7 +495,7 @@ export default function Index() {
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
   );
-  
+
   // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
   const projectsScrollRef = useRef<HTMLDivElement>(null);
@@ -505,7 +505,7 @@ export default function Index() {
   const [formSent, setFormSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
   // Popups
   const [popupProject, setPopupProject] = useState<(typeof PROJECTS)[0] | null>(null);
   const [popupCertificate, setPopupCertificate] = useState<(typeof ACHIEVEMENT_CARDS)[0] | null>(null);
@@ -645,7 +645,6 @@ export default function Index() {
 
     lenis.on("scroll", () => {
       ScrollTrigger.update();
-      window.dispatchEvent(new Event("scroll"));
     });
 
     const raf = (time: number) => {
@@ -702,23 +701,23 @@ export default function Index() {
       if (textEl) {
         isTextHover = true;
         isHovering = false;
-        cursorRingRef.current?.classList.add("text-hover");
-        cursorDotRef.current?.classList.add("text-hover");
-        cursorRingRef.current?.classList.remove("hovering");
-        cursorDotRef.current?.classList.remove("hovering");
+        ring.classList.add("text-hover");
+        dot.classList.add("text-hover");
+        ring.classList.remove("hovering");
+        dot.classList.remove("hovering");
       } else if (interactiveEl) {
         isHovering = true;
         isTextHover = false;
-        cursorRingRef.current?.classList.add("hovering");
-        cursorDotRef.current?.classList.add("hovering");
-        cursorRingRef.current?.classList.remove("text-hover");
-        cursorDotRef.current?.classList.remove("text-hover");
+        ring.classList.add("hovering");
+        dot.classList.add("hovering");
+        ring.classList.remove("text-hover");
+        dot.classList.remove("text-hover");
       } else {
         if (isHovering || isTextHover) {
           isHovering = false;
           isTextHover = false;
-          cursorRingRef.current?.classList.remove("hovering", "text-hover");
-          cursorDotRef.current?.classList.remove("hovering", "text-hover");
+          ring.classList.remove("hovering", "text-hover");
+          dot.classList.remove("hovering", "text-hover");
         }
       }
     };
@@ -745,49 +744,12 @@ export default function Index() {
       }
     };
 
-    // Delegated hover detection: reacts to interactive elements (including
-    // ones mounted later, like popups) without re-binding listeners.
-    // Only elements a click actually does something on — matches the CSS
-    // `cursor: pointer` rule below. Text inputs are intentionally excluded:
-    // they get the native text caret, not a hand cursor.
-    const CLICKABLE_SELECTOR = "a, button, [role='button'], .project-visual, .achievement-card";
-    const TEXT_SELECTOR = "p, h1, h2, h3, h4, li";
-
-    const onMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest(CLICKABLE_SELECTOR)) {
-        // The native hand cursor takes over here (see CSS), so fade the
-        // custom ring/dot out instead of showing both at once.
-        ring.classList.add("hovering");
-        ring.classList.remove("text-hover");
-        dot.classList.add("hovering");
-      } else if (target.closest(TEXT_SELECTOR)) {
-        ring.classList.add("text-hover");
-        ring.classList.remove("hovering");
-        dot.classList.remove("hovering");
-      } else {
-        ring.classList.remove("hovering", "text-hover");
-        dot.classList.remove("hovering");
-      }
-    };
-
-    const onMouseLeave = () => {
-      cursorRingRef.current?.classList.add("hidden");
-      cursorDotRef.current?.classList.add("hidden");
-    };
-
-    const onMouseEnter = () => {
-      cursorRingRef.current?.classList.remove("hidden");
-      cursorDotRef.current?.classList.remove("hidden");
-    };
-
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("mouseover", onMouseOver, { passive: true });
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
     document.addEventListener("mouseleave", onDocMouseLeave);
     document.addEventListener("mouseenter", onDocMouseEnter);
-    document.addEventListener("mouseover", onMouseOver);
 
     let rafId: number;
     const tick = () => {
@@ -1282,7 +1244,7 @@ export default function Index() {
               </div>
               <h3 className="popup-title">{popupCertificate.title}</h3>
               <p className="popup-desc">{popupCertificate.desc}</p>
-              
+
               <div className="popup-links">
                 {popupCertificate.pdfUrl ? (
                   <a href={popupCertificate.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
@@ -1431,7 +1393,7 @@ export default function Index() {
                 </div>
                 <div className="profile-name-tag">PAVITHRAN G</div>
                 <span className="profile-role-badge">Backend Developer & AI Engineer</span>
-                
+
                 <div className="profile-meta-row">
                   <span className="profile-meta-item">
                     <i className="fa-solid fa-location-dot"></i> Tiruchengode, TN
@@ -1440,7 +1402,7 @@ export default function Index() {
                     <i className="fa-solid fa-graduation-cap"></i> B.E. AI &amp; ML
                   </span>
                 </div>
-                
+
                 <div className="profile-status-row">
                   <span className="profile-status-dot"></span>
                   Open for opportunities
@@ -1673,8 +1635,8 @@ export default function Index() {
               badge: exp.statusText,
               badgeVariant:
                 exp.statusText === "CURRENT" ||
-                exp.statusText === "PRESENT" ||
-                exp.statusText === "IN PROGRESS"
+                  exp.statusText === "PRESENT" ||
+                  exp.statusText === "IN PROGRESS"
                   ? ("pursuing" as const)
                   : ("completed" as const),
             }))}

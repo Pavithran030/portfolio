@@ -1,10 +1,22 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://pavithraninfo.dev/sitemap.xml
+Disallow: /private/
+Crawl-delay: 1
 
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+Sitemap: https://pavithraninfo.dev/sitemap.xml
