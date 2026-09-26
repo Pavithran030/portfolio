@@ -995,6 +995,12 @@ canvas {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  /* The source photo is a tall portrait headshot (980x1252) with the face
+     in the upper third and a lot of shoulder/suit below it. Cover's default
+     center crop split that overflow evenly top/bottom, leaving dead space
+     above the hair and letting the suit dominate the circle. Anchoring near
+     the top keeps the face the focal point instead. */
+  object-position: center 12%;
   border: 3px solid hsl(var(--accent-ice) / 0.4);
   box-shadow: 0 8px 24px hsl(var(--accent-ice) / 0.25);
 }
@@ -1176,6 +1182,12 @@ canvas {
   .about-text p {
     font-size: 14.5px;
   }
+  /* Same reasoning as .project-card: drop the per-card backdrop blur on
+     mobile and compensate with a touch more background opacity instead. */
+  .stat-card {
+    backdrop-filter: none;
+    background: hsl(var(--bg-surface) / 0.92);
+  }
 }
 
 /* ===== CATEGORIZED SKILLS SHOWCASE ===== */
@@ -1335,6 +1347,17 @@ canvas {
   max-width: 100%;
 }
 
+@media (max-width: 768px) {
+  /* Same reasoning as .project-card: drop the per-card backdrop blur on
+     mobile and compensate with a touch more background opacity instead —
+     there can be 15+ of these rendered at once. */
+  .skill-card-item {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--bg-surface) / 0.92);
+  }
+}
+
 @media (max-width: 640px) {
   .skills-category-cards-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1486,6 +1509,12 @@ canvas {
     border-color: hsl(var(--border-line) / 0.65);
     background: hsl(var(--bg-surface) / 0.85);
     box-shadow: 0 10px 28px -8px hsl(0 0% 0% / 0.6);
+    /* backdrop-filter has to resample everything behind the card on every
+       compositor frame — with several cards stacked down the page that's a
+       real scroll-jank cost on phone GPUs. The card background is already
+       85% opaque here, so the blur was barely visible; drop it on mobile. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     /* No transform transition here: the enter animation drives transform directly,
        a CSS transition would smear every frame of it. */
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -2006,6 +2035,13 @@ canvas {
     transform: translateX(-50%);
     width: 3px;
   }
+  /* Same reasoning as .project-card: drop the per-card backdrop blur on
+     mobile and compensate with a touch more background opacity instead. */
+  .timeline-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--bg-surface) / 0.92);
+  }
   .timeline-dot-container {
     left: 20px;
     top: 36px;
@@ -2123,6 +2159,15 @@ canvas {
   }
   .achievement-cards {
     grid-template-columns: 1fr;
+  }
+  /* Same reasoning as .project-card: drop the per-card backdrop blur on
+     mobile and compensate with a touch more background opacity instead —
+     there can be 8+ of these rendered at once. */
+  .achievement-stat,
+  .achievement-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--bg-surface) / 0.92);
   }
 }
 

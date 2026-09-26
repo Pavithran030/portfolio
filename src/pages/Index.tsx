@@ -621,6 +621,13 @@ export default function Index() {
   // ===== LENIS SMOOTH SCROLL =====
   useEffect(() => {
     if (!loaded || !revealGone) return;
+    // Lenis's lerp-based easing is built for desktop wheel input. Applied to
+    // touch, it makes content "catch up" to the finger with a delay instead
+    // of tracking it 1:1 — the OS's native inertial touch scroll is already
+    // smoother than any JS approximation, so skip Lenis on mobile entirely
+    // and let native scrolling (and the "scroll" event ScrollTrigger/nav
+    // tracking already listen for) handle it.
+    if (window.innerWidth <= 768) return;
 
     const lenis = new Lenis({
       lerp: 0.08,
