@@ -252,32 +252,71 @@ canvas {
 /* ===== DESKTOP CURSOR WITH NORMAL POINTER & AMBIENT RING ===== */
 .cursor-ring {
   position: fixed;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: hsl(var(--accent-ice) / 0.08);
-  border: 1.5px solid hsl(var(--accent-ice) / 0.4);
-  box-shadow: 0 0 14px hsl(var(--accent-ice) / 0.2);
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid hsl(var(--accent-ice) / 0.7);
+  border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  /* Above every overlay/modal in the page (highest is .project-popup-overlay
+     at 10005) — otherwise the popup paints over the cursor and, combined
+     with `cursor: none` on body/buttons, the pointer becomes fully
+     invisible while a modal is open. */
+  z-index: 10010;
+  opacity: 0;
   transform: translate(-50%, -50%);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.25s ease;
   will-change: left, top, transform, opacity;
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  opacity: 0.35;
 }
 
-/* Hide ambient follower during hover or click so the normal system cursor & pointer are crystal clear */
-.cursor-ring.hovering,
-.cursor-ring.text-hover,
-.cursor-ring.clicking,
-.cursor-ring.hidden {
-  opacity: 0 !important;
-  transform: translate(-50%, -50%) scale(0.6);
-  pointer-events: none;
+.cursor-ring.visible {
+  opacity: 1;
+}
+
+.cursor-ring.hovering {
+  transform: translate(-50%, -50%) scale(1.6);
+  border-color: hsl(var(--accent-mint));
+  background: hsl(var(--accent-ice) / 0.08);
+}
+
+/* Over anything actually clickable, the native hand cursor takes over (see
+   the cursor:pointer rule below) — fade the custom ring/dot out instead of
+   showing both cursors at once. Compound selector so this reliably beats
+   `.visible`'s opacity regardless of rule order. */
+.cursor-ring.visible.hovering,
+.cursor-dot.visible.hovering {
+  opacity: 0;
+}
+
+.cursor-ring.text-hover {
+  transform: translate(-50%, -50%) scaleX(2.2) scaleY(0.3);
+  border-color: hsl(var(--accent-ice));
+}
+
+.cursor-ring.clicking {
+  transform: translate(-50%, -50%) scale(0.7);
+  transition: transform 0.1s ease, opacity 0.25s ease;
 }
 
 .cursor-dot {
-  display: none !important;
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: hsl(var(--accent-ice));
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10011;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, opacity 0.25s ease;
+  will-change: left, top, transform, opacity;
+}
+
+.cursor-dot.visible {
+  opacity: 1;
+}
+
+.cursor-dot.clicking {
+  transform: translate(-50%, -50%) scale(2.2);
 }
 
 @media (max-width: 768px) {
@@ -683,10 +722,15 @@ canvas {
 
 .content-wrapper section {
   position: relative;
-  padding: 90px clamp(20px, 4vw, 64px);
-  width: 100%;
-  max-width: 1680px;
+  padding: 100px var(--section-inline);
+  max-width: 1440px;
   margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper section {
+    padding: 56px var(--section-inline);
+  }
 }
 
 .section-label {
@@ -724,7 +768,7 @@ canvas {
 }
 
 /* ===== HERO SECTION ===== */
-.hero-section {
+.content-wrapper .hero-section {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -733,6 +777,13 @@ canvas {
   text-align: center;
   padding-top: 100px;
   padding-bottom: 60px;
+  /* Full-bleed: the hero's vanta/grid background layers are absolute children
+     of this section, so it must span the whole viewport width, not the
+     1280px reading-width cap from the generic `.content-wrapper section`
+     rule. `.hero-text` below carries its own max-width for the readable
+     content. */
+  max-width: none;
+  margin: 0;
   position: relative;
   overflow: hidden;
 }
@@ -1373,6 +1424,8 @@ canvas {
 .projects-section-pinned {
   position: relative;
   width: 100%;
+  max-width: none;
+  margin: 0;
   padding-top: 24px;
   padding-bottom: 36px;
 }

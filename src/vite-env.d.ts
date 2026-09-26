@@ -38,8 +38,6 @@ declare const TextPlugin: {
 	[key: string]: unknown;
 };
 
-declare const Splitting: (...args: unknown[]) => unknown;
-
 declare module "vanta/src/vanta.dots.js" {
 	const DOTS: (options: Record<string, unknown>) => {
 		destroy?: () => void;

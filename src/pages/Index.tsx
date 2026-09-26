@@ -79,7 +79,6 @@ declare const ScrollTrigger: {
 };
 declare const ScrollToPlugin: unknown;
 declare const TextPlugin: unknown;
-declare const Splitting: (options: { target: string; by: string }) => void;
 
 const SECTION_BG_COLORS = [
   { section: "#home", color: "hsl(var(--bg-void))" },
@@ -237,11 +236,22 @@ Key Architectural Capabilities:
 const ACHIEVEMENTS_STATS = [
   { value: 200, suffix: "+", label: "LeetCode Solved" },
   { value: 3, suffix: "+", label: "Internships Completed" },
-  { value: 11, suffix: "", label: "Verified Credentials" },
+  { value: 12, suffix: "", label: "Verified Credentials" },
   { value: 5, suffix: "+", label: "AI & ML Projects" },
 ];
 
 const ACHIEVEMENT_CARDS = [
+  {
+    icon: "fa-solid fa-cloud",
+    title: "Redis Associate Cloud Operator",
+    desc: "Earned the globally recognized Redis Associate Cloud Operator certification, validating expertise in deploying, managing, and operating Redis Cloud infrastructure for scalable, high-availability distributed systems.",
+    issuer: "Redis",
+    date: "September 17, 2026",
+    credentialId: "194406109",
+    credentialUrl: "https://university.redis.com/certificates/",
+    imageUrl: "/certificates/Redis_Associate_Cloud_Operator.png",
+    pdfUrl: "",
+  },
   {
     icon: "fa-solid fa-trophy",
     title: "Redis Certified Associate Developer",
@@ -484,17 +494,17 @@ export default function Index() {
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
   );
-  
+
   // Horizontal Projects Pinned Scroll Engine (Normal mouse scroll moves projects horizontally on desktop until end)
   const projectsContainerRef = useRef<HTMLDivElement>(null);
   const projectsScrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Contact & feedback
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
   // Popups
   const [popupProject, setPopupProject] = useState<(typeof PROJECTS)[0] | null>(null);
   const [popupCertificate, setPopupCertificate] = useState<(typeof ACHIEVEMENT_CARDS)[0] | null>(null);
@@ -519,6 +529,8 @@ export default function Index() {
 
   const mousePos = useRef({ x: 0, y: 0 });
   const ringPos = useRef({ x: 0, y: 0 });
+  const dotPos = useRef({ x: 0, y: 0 });
+  const scrollLockYRef = useRef(0);
 
   // Sync initial theme to cyber-emerald
   useEffect(() => {
@@ -639,7 +651,6 @@ export default function Index() {
 
     lenis.on("scroll", () => {
       ScrollTrigger.update();
-      window.dispatchEvent(new Event("scroll"));
     });
 
     const raf = (time: number) => {
@@ -658,14 +669,24 @@ export default function Index() {
   useEffect(() => {
     if (!loaded || !revealGone || window.innerWidth <= 768) return;
 
+    const ring = cursorRingRef.current;
+    const dot = cursorDotRef.current;
+    if (!ring || !dot) return;
+
+    let hasMoved = false;
     let isHovering = false;
     let isTextHover = false;
 
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
-      if (cursorDotRef.current) {
-        cursorDotRef.current.style.left = `${e.clientX}px`;
-        cursorDotRef.current.style.top = `${e.clientY}px`;
+      if (!hasMoved) {
+        // Snap straight to the first real pointer position instead of
+        // lerping in all the way from the (0,0) default.
+        hasMoved = true;
+        ringPos.current = { x: e.clientX, y: e.clientY };
+        dotPos.current = { x: e.clientX, y: e.clientY };
+        ring.classList.add("visible");
+        dot.classList.add("visible");
       }
       if (cursorRingRef.current?.classList.contains("hidden")) {
         cursorRingRef.current.classList.remove("hidden");
@@ -686,79 +707,117 @@ export default function Index() {
       if (textEl) {
         isTextHover = true;
         isHovering = false;
-        cursorRingRef.current?.classList.add("text-hover");
-        cursorDotRef.current?.classList.add("text-hover");
-        cursorRingRef.current?.classList.remove("hovering");
-        cursorDotRef.current?.classList.remove("hovering");
+        ring.classList.add("text-hover");
+        dot.classList.add("text-hover");
+        ring.classList.remove("hovering");
+        dot.classList.remove("hovering");
       } else if (interactiveEl) {
         isHovering = true;
         isTextHover = false;
-        cursorRingRef.current?.classList.add("hovering");
-        cursorDotRef.current?.classList.add("hovering");
-        cursorRingRef.current?.classList.remove("text-hover");
-        cursorDotRef.current?.classList.remove("text-hover");
+        ring.classList.add("hovering");
+        dot.classList.add("hovering");
+        ring.classList.remove("text-hover");
+        dot.classList.remove("text-hover");
       } else {
         if (isHovering || isTextHover) {
           isHovering = false;
           isTextHover = false;
-          cursorRingRef.current?.classList.remove("hovering", "text-hover");
-          cursorDotRef.current?.classList.remove("hovering", "text-hover");
+          ring.classList.remove("hovering", "text-hover");
+          dot.classList.remove("hovering", "text-hover");
         }
       }
     };
 
     const onMouseDown = () => {
-      cursorRingRef.current?.classList.add("clicking");
-      cursorDotRef.current?.classList.add("clicking");
+      ring.classList.add("clicking");
+      dot.classList.add("clicking");
     };
-
     const onMouseUp = () => {
-      cursorRingRef.current?.classList.remove("clicking");
-      cursorDotRef.current?.classList.remove("clicking");
+      ring.classList.remove("clicking");
+      dot.classList.remove("clicking");
     };
 
-    const onMouseLeave = () => {
-      cursorRingRef.current?.classList.add("hidden");
-      cursorDotRef.current?.classList.add("hidden");
+    // Fade out when the pointer leaves the viewport so the cursor doesn't
+    // linger stuck at the last known edge position.
+    const onDocMouseLeave = () => {
+      ring.classList.remove("visible");
+      dot.classList.remove("visible");
     };
-
-    const onMouseEnter = () => {
-      cursorRingRef.current?.classList.remove("hidden");
-      cursorDotRef.current?.classList.remove("hidden");
+    const onDocMouseEnter = () => {
+      if (hasMoved) {
+        ring.classList.add("visible");
+        dot.classList.add("visible");
+      }
     };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("mouseover", onMouseOver, { passive: true });
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mouseleave", onMouseLeave);
-    document.addEventListener("mouseenter", onMouseEnter);
+    document.addEventListener("mouseleave", onDocMouseLeave);
+    document.addEventListener("mouseenter", onDocMouseEnter);
 
     let rafId: number;
-    const updateRing = () => {
-      // Smooth Apple-like inertial damping
-      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.22;
-      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.22;
-      if (cursorRingRef.current) {
-        cursorRingRef.current.style.left = `${ringPos.current.x}px`;
-        cursorRingRef.current.style.top = `${ringPos.current.y}px`;
-      }
-      rafId = requestAnimationFrame(updateRing);
+    const tick = () => {
+      // Dot: fast, tight follow.
+      dotPos.current.x += (mousePos.current.x - dotPos.current.x) * 0.5;
+      dotPos.current.y += (mousePos.current.y - dotPos.current.y) * 0.5;
+      // Ring: slower trailing follow.
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.15;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.15;
+
+      dot.style.left = `${dotPos.current.x}px`;
+      dot.style.top = `${dotPos.current.y}px`;
+      ring.style.left = `${ringPos.current.x}px`;
+      ring.style.top = `${ringPos.current.y}px`;
+
+      rafId = requestAnimationFrame(tick);
     };
-    rafId = requestAnimationFrame(updateRing);
+    rafId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseover", onMouseOver);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mouseleave", onMouseLeave);
-      document.removeEventListener("mouseenter", onMouseEnter);
+      document.removeEventListener("mouseleave", onDocMouseLeave);
+      document.removeEventListener("mouseenter", onDocMouseEnter);
+      document.removeEventListener("mouseover", onMouseOver);
       cancelAnimationFrame(rafId);
     };
   }, [loaded, revealGone]);
 
-  // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION & SECTION MAP =====
+  // ===== LOCK BACKGROUND SCROLL WHILE A POPUP / MENU IS OPEN =====
+  useEffect(() => {
+    const isOverlayOpen = mobileMenuOpen || !!popupProject || !!popupCertificate;
+    if (isOverlayOpen) {
+      const y = window.scrollY;
+      scrollLockYRef.current = y;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${y}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      lenisRef.current?.stop();
+    } else {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollLockYRef.current);
+      lenisRef.current?.start();
+    }
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+    };
+  }, [mobileMenuOpen, popupProject, popupCertificate]);
+
+  // ===== SCROLL LISTENER FOR NAVBAR & ACTIVE SECTION =====
   useEffect(() => {
     const bgLayer = document.querySelector(".bg-transition-layer") as HTMLElement | null;
 
@@ -865,8 +924,6 @@ export default function Index() {
       if (projectsTrack && projectsSection && !isMobile) {
         const projectsWrapper = projectsSection.querySelector(".projects-pin-wrapper") as HTMLElement | null;
         if (projectsWrapper) {
-          // The wrapper has horizontal padding, so clientWidth alone overestimates available track viewport.
-          // Use both last-card alignment and scrollWidth fallback for reliability across layout changes.
           const wrapperStyles = window.getComputedStyle(projectsWrapper);
           const padLeft = parseFloat(wrapperStyles.paddingLeft) || 0;
           const padRight = parseFloat(wrapperStyles.paddingRight) || 0;
@@ -896,7 +953,6 @@ export default function Index() {
               });
             }, projectsSection);
 
-            // Ensure trigger measurements are updated after timeline registration.
             (ScrollTrigger as unknown as { refresh?: () => void }).refresh?.();
           }
         }
@@ -1194,7 +1250,7 @@ export default function Index() {
               </div>
               <h3 className="popup-title">{popupCertificate.title}</h3>
               <p className="popup-desc">{popupCertificate.desc}</p>
-              
+
               <div className="popup-links">
                 {popupCertificate.pdfUrl ? (
                   <a href={popupCertificate.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
@@ -1343,7 +1399,7 @@ export default function Index() {
                 </div>
                 <div className="profile-name-tag">PAVITHRAN G</div>
                 <span className="profile-role-badge">Backend Developer & AI Engineer</span>
-                
+
                 <div className="profile-meta-row">
                   <span className="profile-meta-item">
                     <i className="fa-solid fa-location-dot"></i> Tiruchengode, TN
@@ -1352,7 +1408,7 @@ export default function Index() {
                     <i className="fa-solid fa-graduation-cap"></i> B.E. AI &amp; ML
                   </span>
                 </div>
-                
+
                 <div className="profile-status-row">
                   <span className="profile-status-dot"></span>
                   Open for opportunities
@@ -1585,8 +1641,8 @@ export default function Index() {
               badge: exp.statusText,
               badgeVariant:
                 exp.statusText === "CURRENT" ||
-                exp.statusText === "PRESENT" ||
-                exp.statusText === "IN PROGRESS"
+                  exp.statusText === "PRESENT" ||
+                  exp.statusText === "IN PROGRESS"
                   ? ("pursuing" as const)
                   : ("completed" as const),
             }))}
